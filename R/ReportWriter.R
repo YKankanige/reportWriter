@@ -1,0 +1,595 @@
+library(stringr)
+library(flextable)
+library(DBI)
+library(RMySQL)
+library(officer)
+library(flextable)
+library(yaml)
+
+################################################################################################################
+# Load config files and define other variables to R folder, run only when they have changed
+################################################################################################################
+#report_writer_config <- yaml::read_yaml(system.file("extdata", "report_writer_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
+
+## Gene coverage table info
+#coverage_data <- read.table(system.file("extdata", "coverage_table_all.csv", package = "reportWriter", mustWork=T), sep=",", stringsAsFactors=F, header=T)
+#colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
+
+##Gene names of different panels
+#all_haem_no_ddx41 <- coverage_data$Gene
+#all_haem_no_ddx41 <- all_haem_no_ddx41[-which(all_haem_no_ddx41 == "DDX41")]
+#mpn_dx <- c("ASXL1", "CALR", "CBL", "CSF3R", "ETNK1", "EZH2", "IDH1", "IDH2", "JAK2", "KIT", "KRAS", "MPL", "NRAS", "RUNX1", "SETBP1", "SF3B1", "SH2B3",
+#            "SRSF2", "TET2", "TP53", "U2AF1", "ZRSR2")
+#sg_tp53 <- "TP53"
+#sg_cebpa <- "CEBPA"
+#usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, sg_cebpa, internal=T, overwrite=T)
+
+
+################################################################################################################
+# Helper functions for fetching and saving data
+################################################################################################################
+
+#' Function to generate report template using list object reportInfo
+#'
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#'
+#' @return report_template which is a word document template
+#'
+#' @export
+generateReportTemplate <- function(reportInfo)
+{
+  #generate the coverage table and format
+  if (reportInfo$report_type != "FAIL")
+  {
+    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template)
+    coverage_table <- coverageTableThemed(data_coverage)
+  }
+  else
+  {
+    data_coverage <- returnCoverageTableFail(reportInfo$report_template)
+    coverage_table <- coverageTableThemedFail(data_coverage)
+  }
+
+  #Read the relevant template
+  template_name <- paste0(reportInfo$report_template, "_", reportInfo$report_type, ".docx")
+  if (template_name == "AHD_DDX41_NEG.docx")
+    template_name <- "AHD_NEG.docx"
+  else if (template_name == "MDX_MPN_NEG.docx")
+    template_name <- "MDX_NEG.docx"
+  else if (template_name == "MDX_MPN_VAR.docx")
+    template_name <- "MDX_VAR.docx"
+  else if (template_name == "SG_TP53_CLL_NEG.docx")
+    template_name <- "SG_TP53_NEG.docx"
+  else if (template_name == "SG_TP53_CLL_VAR.docx")
+    template_name <- "SG_TP53_VAR.docx"
+  else if (template_name == "AHD_DDX41_FAIL.docx")
+    template_name <- "AHD_FAIL.docx"
+  else if (template_name == "MDX_MPN_FAIL.docx")
+    template_name <- "MDX_FAIL.docx"
+  else if (template_name == "SG_TP53_CLL_FAIL.docx")
+    template_name <- "SG_TP53_FAIL.docx"
+
+  report_template <- read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
+
+  #replace variable's in the template
+  #Patient info header
+  report_template <- body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
+
+  #Report area
+  report_template <- body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
+  report_template <- body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
+
+  #save "reported by" if new line exists there is two
+  if (grepl("\n", reportInfo$reported_by))
+  {
+    index <- regexpr("\n", reportInfo$reported_by)
+    reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
+    reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
+    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
+    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
+  }
+  else
+  {
+    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
+    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
+  }
+
+
+  if (reportInfo$report_type == "NEG")
+  {
+    report_template <- negativeReportResultsSection(report_template, reportInfo)
+  }
+  else if (reportInfo$report_type == "VAR")
+  {
+    report_template <- variantsReportResultsSection(report_template, reportInfo)
+  }
+
+  if (reportInfo$report_template != "SG_CEBPA_germline")
+  {
+    report_template <- body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
+
+    if (reportInfo$report_template != "AH_cfDNA")
+    {
+      report_template <- body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
+    }
+  }
+
+  #FLT3_ITD and DDX41 germline variant analysis in reports with variants
+  if (reportInfo$report_type == "VAR")
+  {
+    if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
+    {
+      report_template <- body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
+    }
+
+    if (reportInfo$report_template == "AHD_DDX41")
+    {
+      report_template <- body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
+    }
+  }
+
+  #footer
+  report_template <- footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
+  report_template <- footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
+  report_template <- footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
+  report_template <- footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
+
+  #Add coverage table
+  if (reportInfo$report_type != "FAIL")
+    report_template <- cursor_reach(report_template, report_writer_config$Coverage_table_text)
+  else
+    report_template <- cursor_reach(report_template, report_writer_config$Panel_table_text)
+  #Align the table left in SG reports and center in others
+  table_align <- "center"
+  if (grepl("^SG_", reportInfo$report_template))
+    table_align <- "left"
+  report_template <- body_add_flextable(report_template, coverage_table, align=table_align)
+
+  #Add variants table
+  if (reportInfo$report_type == "VAR")
+  {
+    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
+    report_template <- cursor_reach(report_template, report_writer_config$Variants_table_text)
+    report_template <- body_add_flextable(report_template, variants_table, align="center", pos="before")
+  }
+
+  #Add clinical context to negative and variant existing reports
+  if ((reportInfo$report_type != "FAIL") && (reportInfo$report_template != "SG_CEBPA_germline"))
+  {
+    if (reportInfo$clinical_context_report != " ")
+    {
+      file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
+      report_template <- cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
+      report_template <- body_add_break(report_template)
+      report_template <- body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
+    }
+    else
+    {
+      #Clinical context not chosen
+      report_template <- cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- body_remove(report_template)
+    }
+  }
+
+  return (report_template)
+}
+
+#' Load sample information to reportInfo object. This is the main reactive object used
+#' by the report builder app which is also a named list
+#'
+#' @param con_pathOS PathOS DB connection
+#' @param seqrun seqrun, character value
+#' @param sample_accession sample accession, character value
+#' @param reportInfo Named list from report builder/automatic generation tools with report information
+#'
+#' @return reportInfo
+#'
+#' @export
+loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo)
+{
+  data <-  getSampleInfo(con_pathOS, seqrun, sample_accession)
+
+  #check for hgvsg format and give an error
+  if (nrow(data) != 0)
+  {
+    reportInfo$sample_exists <- T
+    coverageData <- getCoverageData(seqrun, sample_accession)
+
+    if (nrow(coverageData) != 0)
+    {
+      #Update the reactive variable
+      reportInfo$initialized <- T
+      reportInfo$sample_accession <- data$sample_name
+      reportInfo$seqrun <- data$seqrun
+      reportInfo$specimen_type <- NA #specimen type not available, check
+      reportInfo$collected_date <- formatDate(data$collect_date)
+      reportInfo$received_date <- formatDate(data$rcvd_date)
+      reportInfo$requester <- data$requester
+      reportInfo$referral_lab <- data$pathlab
+      reportInfo$ext_ref <- data$ext_sample
+      reportInfo$patient_name <- data$full_name
+      reportInfo$urn <- data$urn
+      reportInfo$dob <- formatDate(data$dob)
+      reportInfo$gender <- data$sex
+
+      reportInfo$coverage_data <- coverageData
+
+      #Load variant data
+      dataVariant <- getVariantInfo(con_pathOS, seqrun, sample_accession)
+      if (nrow(dataVariant) == 0) #No reportable variants found
+      {
+        reportInfo$reportable_variants <- F
+        reportInfo$variants <- NULL
+      }
+      else #reportable variants found
+      {
+        reportInfo$reportable_variants <- T
+        reportInfo$variants <- dataVariant
+      }
+    }
+  }
+
+  return (reportInfo)
+}
+
+
+#' Fetch variant info from pathos database
+#'
+#' @param con_pathOS PathOS DB connection
+#' @param seqrun seqrun, character value
+#' @param sample_accession sample accession, character value
+#'
+#' @return dataframe with variant information
+#'
+#' @export
+getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
+{
+  seqrun <- trimws(seqrun, which="both")
+  sample_accession <- trimws(sample_accession, which="both")
+
+  #Check whether the sample, seqrun combination exists
+  sample_names <- sample_accession
+  sample_names <- c(sample_names, paste0(sample_names, "-1")) #because there are two samples
+  sample_names <- paste0("'", sample_names, "'")
+  samples_str <- paste(sample_names, collapse = ", ")
+  #print(samples_str)
+
+  query <- paste0("SELECT gene, hgvsc, hgvsg, hgvsp, pos, read_depth, refseq_mrna,
+                    BIN(reportable) AS reportable, var_freq, var_panel_pct, variant FROM seq_variant
+                    INNER JOIN seq_sample ON seq_sample.id = seq_variant.seq_sample_id
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    WHERE seq_variant.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "' AND reportable = 1;")
+  data <- dbGetQuery(con_pathOS, query)
+
+  if (nrow(data) == 0)
+    return (data)
+
+  #preprocess variants
+  data <- data[, c("gene", "hgvsc", "hgvsp", "var_freq")]
+  data$hgvsp[data$hgvsp == ""] <- report_writer_config$hgvsp_NA
+  data$variant <-  paste0(str_extract(data$hgvsc, "c[.].*$"), " ", str_extract(data$hgvsp, "p[.].*$"))
+  df <- data.frame(ReportVariantID=NA, ReportID=NA, AssumedOrigin=NA, Gene=data$gene, Variant=data$variant, VRF=data$var_freq, ClinicalSignificance=NA, stringsAsFactors=F)
+  df <- df[order(df$VRF, decreasing=T), ]
+  df["VRF"] <- round(as.numeric(df$VRF))
+  df["AssumedOrigin"] <- factor(df$AssumedOrigin, levels=report_writer_config$assumed_origin_choices)
+
+  return (df)
+}
+
+
+#' Load sample information to reportInfo object and report information to reportInfo objects
+#' If there is a report existing, only load basic report information if there are multiple reports per sample
+#'
+#' @param con_rb Report builder database connection
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#'
+#' @return reportInfo
+#'
+#' @export
+loadReportBuilderData <- function(con_rb, reportInfo)
+{
+  query <- paste0("SELECT * FROM Sample
+                    WHERE Sample.SampleName = '", reportInfo$sample_accession, "' AND Seqrun = '", reportInfo$seqrun , "';")
+  data <- dbGetQuery(con_rb, query)
+
+  if (nrow(data) != 0)
+  {
+    #Load information from sample object
+    reportInfo$specimen_type <- data$Specimen
+
+    reportInfo$db_sample_id <- data$SampleID
+    reportInfo$clinical_indication <- data$ClinicalIndication
+    reportInfo$correlative_morphology <- data$CorrelativeMorphology
+    reportInfo$specimen_details <- data$SpecimenDetails
+
+    #Check whether a report exists (sample info can exist without a report if loaded via NVD identifier)
+    query <- paste0("SELECT * FROM Report
+                    INNER JOIN ReportBuilderInfo ON Report.ReportID = ReportBuilderInfo.ReportID
+                    WHERE SampleID = '", data$SampleID, "';")
+    report_data <- dbGetQuery(con_rb, query)
+
+    if (nrow(report_data) > 1) #More than one report existing
+    {
+      reportInfo$new_report <- F
+      reportInfo$db_report_id <- report_data$ReportID
+      reportInfo$db_report_builder_info_id <- report_data$ReportBuilderInfoID
+      reportInfo$report_template <- report_data$Template
+      reportInfo$report_type <- report_data$Type
+      reportInfo$report_name <- report_data$Name
+      reportInfo$report_status <- report_data$Status
+    }
+    else if (nrow(report_data) == 1)
+    {
+      reportInfo$new_report <- F
+      reportInfo$db_report_id <- report_data$ReportID
+      reportInfo$db_report_builder_info_id <- report_data$ReportBuilderInfoID
+
+      return (loadReportInformation(con_rb, report_data, reportInfo))
+    }
+  }
+
+  return (reportInfo)
+}
+
+
+#' Load report information to reportInfo object
+#' This call uses the reportID in reportInfo object
+#'
+#' @param con_rb Report builder database connection
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#'
+#' @return reportInfo
+#'
+#' @export
+loadReportBuilderReport <- function(con_rb, reportInfo)
+{
+  #Check whether a report exists (sample info can exist without a report if loaded via NVD identifier)
+  query <- paste0("SELECT * FROM Report
+                  INNER JOIN ReportBuilderInfo ON Report.ReportID = ReportBuilderInfo.ReportID
+                  WHERE Report.ReportID = '", reportInfo$db_report_id, "';")
+  report_data <- dbGetQuery(con_rb, query)
+
+  return (loadReportInformation(con_rb, report_data, reportInfo))
+}
+
+
+#' Save report to Report builder database, also fetching report id etc when saved if this is a new report
+#'
+#' @param con_rb Report builder database connection
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#'
+#' @return reportInfo
+#'
+#' @export
+saveReport <- function(con_rb, reportInfo)
+{
+  sample_id <- NA
+  #Sample can already exist in the database
+  if (!is.null(reportInfo$db_sample_id))
+  {
+    sample_id <- reportInfo$db_sample_id
+    query <- paste0("UPDATE Sample SET  Specimen='", reportInfo$specimen_type, "',
+                                    ClinicalIndication='", reportInfo$clinical_indication, "',
+                                    CorrelativeMorphology='", reportInfo$correlative_morphology, "',
+                                    SpecimenDetails='", reportInfo$specimen_details, "'
+                                    WHERE SampleID = '", sample_id, "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+  }
+  else
+  {
+    #Insert sample
+    query <- paste0("INSERT INTO Sample SET SampleName='", reportInfo$sample_accession, "',
+                                          Seqrun='", reportInfo$seqrun, "',
+                                          Specimen='", reportInfo$specimen_type, "',
+                                          ClinicalIndication='", reportInfo$clinical_indication, "',
+                                          CorrelativeMorphology='", reportInfo$correlative_morphology, "',
+                                          SpecimenDetails='", reportInfo$specimen_details, "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+    query <- paste0("SELECT LAST_INSERT_ID();")
+    res <- dbGetQuery (con_rb, query)
+    sample_id <- res$`LAST_INSERT_ID()`
+    reportInfo$db_sample_id <- sample_id
+  }
+
+  #Combined results summary and clinical indication
+  results_summary <- paste0(reportInfo$results_summary_var, " ", reportInfo$results_summary_desc, " ",
+                            reportInfo$results_summary_flt3, " ", reportInfo$results_summary_qual)
+  results_summary <- trimws(results_summary, which="both")
+  results_summary <- gsub("[ ]{2,}", " ", results_summary)
+
+  clinical_interpretation <- paste0(reportInfo$clinical_interpretation_txt_var, " ", reportInfo$clinical_interpretation_sel, " ",
+                                    reportInfo$clinical_interpretation_txt)
+  clinical_interpretation <- trimws(clinical_interpretation, which="both")
+  clinical_interpretation <- gsub("[ ]{2,}", " ", clinical_interpretation)
+
+  if (reportInfo$new_report && reportInfo$report_create) #New report but can be a replace
+  {
+    #Insert Report
+    query <- paste0("INSERT INTO Report SET SampleID='", sample_id, "',
+                                          Template='", reportInfo$report_template, "',
+                                          Type='", reportInfo$report_type, "',
+                                          Status='", reportInfo$report_status, "',
+                                          Name='", reportInfo$report_name, "',
+                                          ResultsSummary='", results_summary, "',
+                                          ClinicalInterpretation='", clinical_interpretation, "',
+                                          ClinicalContext='", reportInfo$clinical_context, "',
+                                          FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
+                                          DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
+                                          AuthorisedBy='", reportInfo$authorised_by, "',
+                                          ReportedBy='", reportInfo$reported_by, "',
+                                          LastModifiedBy='", reportInfo$session_user, "',
+                                          CreatedBy='", reportInfo$session_user, "',
+                                          CreatedDate='", Sys.time(), "',
+                                          LastModifiedDate='", Sys.time(), "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+    query <- paste0("SELECT LAST_INSERT_ID();")
+    res <- dbGetQuery (con_rb, query)
+    report_id <- res$`LAST_INSERT_ID()`
+
+    #Insert reportInfo
+    query <- paste0("INSERT INTO ReportBuilderInfo SET ReportID='", report_id, "',
+                                          ResultsSummaryDesc='", reportInfo$results_summary_desc, "',
+                                          ResultsSummaryFLT3='", reportInfo$results_summary_flt3, "',
+                                          ResultsSummaryQual='", reportInfo$results_summary_qual, "',
+                                          ResultsSummaryVarDesc='", reportInfo$results_summary_var, "',
+                                          ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
+                                          ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
+                                          ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
+                                          ClinicalContextReport='", reportInfo$clinical_context_report, "',
+                                          ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
+                                          ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
+                                          ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
+                                          ClinicalInterpretationDDX41='", reportInfo$clinical_interpretation_ddx41, "',
+                                          ClinicalInterpretationMiscChoices='", reportInfo$clinical_interpretation_misc_choices, "',
+                                          DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
+                                          DDX41Type='", reportInfo$ddx41_type, "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+    query <- paste0("SELECT LAST_INSERT_ID();")
+    res <- dbGetQuery (con_rb, query)
+    report_builder_id <- res$`LAST_INSERT_ID()`
+
+    if (!is.null(reportInfo$variants))
+    {
+      #prepare data and append to the table
+      variants <- reportInfo$variants
+      variants["ReportID"] <- report_id
+      variants$AssumedOrigin <- as.character(variants$AssumedOrigin)
+      variants <- variants[, c("ReportID", "Variant", "Gene", "VRF", "AssumedOrigin", "ClinicalSignificance")]
+      rownames(variants) <- NULL
+      dbWriteTable(con_rb, "ReportVariant", variants, row.names=F, append=T)
+    }
+
+    #Assign values to report info
+    reportInfo$db_report_id <- report_id
+    reportInfo$db_report_builder_info_id <- report_builder_id
+    reportInfo$new_report <- F #No longer a new report
+    reportInfo$report_create <- F #No longer a create
+  }
+  else #create and replace or modify
+  {
+    #Insert Report
+    query <- paste0("UPDATE Report SET Template='", reportInfo$report_template, "',
+                                      Type='", reportInfo$report_type, "',
+                                      Status='", reportInfo$report_status, "',
+                                      Name='", reportInfo$report_name, "',
+                                      ResultsSummary='", results_summary, "',
+                                      ClinicalInterpretation='", clinical_interpretation, "',
+                                      ClinicalContext='", reportInfo$clinical_context, "',
+                                      FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
+                                      DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
+                                      AuthorisedBy='", reportInfo$authorised_by, "',
+                                      ReportedBy='", reportInfo$reported_by, "',
+                                      LastModifiedBy='", reportInfo$session_user, "',
+                                      LastModifiedDate='", Sys.time(), "'
+                                      WHERE ReportID = '", reportInfo$db_report_id, "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+
+    #Insert reportInfo
+    query <- paste0("UPDATE ReportBuilderInfo SET ResultsSummaryDesc='", reportInfo$results_summary_desc, "',
+                                        ResultsSummaryFLT3='", reportInfo$results_summary_flt3, "',
+                                        ResultsSummaryQual='", reportInfo$results_summary_qual, "',
+                                        ResultsSummaryVarDesc='", reportInfo$results_summary_var, "',
+                                        ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
+                                        ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
+                                        ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
+                                        ClinicalContextReport='", reportInfo$clinical_context_report, "',
+                                        ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
+                                        ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
+                                        ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
+                                        ClinicalInterpretationDDX41='", reportInfo$clinical_interpretation_ddx41, "',
+                                        ClinicalInterpretationMiscChoices='", reportInfo$clinical_interpretation_misc_choices, "',
+                                        DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
+                                        DDX41Type='", reportInfo$ddx41_type, "'
+                                        WHERE ReportBuilderInfoID = '", reportInfo$db_report_builder_info_id, "';")
+    res <- dbSendQuery (con_rb, query)
+    dbClearResult(res)
+
+    #Now match existing variants on DB and the variants in reportInfo and perform modify, insert or delete
+    query <- paste0("SELECT * FROM ReportVariant
+                WHERE ReportID = '", reportInfo$db_report_id, "';")
+    existingVariants <- dbGetQuery(con_rb, query)
+
+    existingVariants <- existingVariants[order(existingVariants$ReportVariantID, decreasing=F), ]
+    existingVariants$VRF[existingVariants$VRF == "NA"] <- NA
+    existingVariants["VRF"] <- round(as.numeric(existingVariants$VRF))
+    existingVariants["AssumedOrigin"] <- factor(existingVariants$AssumedOrigin, levels=report_writer_config$assumed_origin_choices)
+
+    changedVariants <- reportInfo$variants
+    if (is.null(changedVariants))
+      changedVariants <- data.frame(ReportVariantID=integer(0), ReportID=integer(0), AssumedOrigin=character(0),
+                                    Gene=character(0), Variant=character(0), VRF=numeric(0), ClinicalSignificance=character(0))
+
+    existingVariants["Row"] <- apply(existingVariants, 1, function(col){paste(as.character(col), collapse = "::")})
+    changedVariants["Row"] <- apply(changedVariants, 1, function(col){paste(as.character(col), collapse = "::")})
+
+    changedDiff <- changedVariants[which(changedVariants$Row == setdiff(changedVariants$Row, existingVariants$Row)), ]
+    existingDiff <- existingVariants[which(existingVariants$Row == setdiff(existingVariants$Row, changedVariants$Row)), ]
+
+    #Record with same report variant ID are modifications
+    indexes_modified <- which(changedDiff$ReportVariantID %in% existingDiff$ReportVariantID)
+    if (length(indexes_modified) > 0)
+    {
+      for(index_modified in indexes_modified)
+      {
+        record <- changedDiff[index_modified, ]
+        query <- paste0("UPDATE ReportVariant SET Variant='", record$Variant, "',
+                                            Gene='", record$Gene, "',
+                                            VRF='", record$VRF, "',
+                                            AssumedOrigin='", record$AssumedOrigin, "',
+                                            ClinicalSignificance='", record$ClinicalSignificance, "'
+                                            WHERE ReportVariantID = '", record$ReportVariantID, "';")
+        res <- dbSendQuery (con_rb, query)
+        dbClearResult(res)
+      }
+    }
+    #Existing in changed but not in DB means inserts
+    records_inserted <- changedDiff[which(!(changedDiff$ReportVariantID %in% existingDiff$ReportVariantID)), ]
+    if (nrow(records_inserted) > 0)
+    {
+      for(i in 1:nrow(records_inserted))
+      {
+        record <- records_inserted[i, ]
+        query <- paste0("INSERT ReportVariant SET ReportID='", reportInfo$db_report_id, "',
+                                            Variant='", record$Variant, "',
+                                            Gene='", record$Gene, "',
+                                            VRF='", record$VRF, "',
+                                            AssumedOrigin='", record$AssumedOrigin, "',
+                                            ClinicalSignificance='", record$ClinicalSignificance, "';")
+
+        res <- dbSendQuery (con_rb, query)
+        dbClearResult(res)
+      }
+    }
+    #If existing in existing but not in changed then deleted
+    records_deleted <- existingDiff[which(!(existingDiff$ReportVariantID %in% changedDiff$ReportVariantID)), ]
+    if (nrow(records_deleted) > 0)
+    {
+      for(i in 1:nrow(records_deleted))
+      {
+        record <- records_deleted[i, ]
+        query <- paste0("DELETE FROM ReportVariant WHERE ReportVariantID='", record$ReportVariantID, "';")
+
+        res <- dbSendQuery (con_rb, query)
+        dbClearResult(res)
+      }
+    }
+  }
+
+  return (reportInfo)
+}
