@@ -192,11 +192,12 @@ generateReportTemplate <- function(reportInfo)
 #' @param seqrun seqrun, character value
 #' @param sample_accession sample accession, character value
 #' @param reportInfo Named list from report builder/automatic generation tools with report information
+#' @param path_gene_coverage_file path to gene coverage file
 #'
 #' @return reportInfo
 #'
 #' @export
-loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo)
+loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, path_gene_coverage_file)
 {
   data <-  getSampleInfo(con_pathOS, seqrun, sample_accession)
 
@@ -204,7 +205,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo)
   if (nrow(data) != 0)
   {
     reportInfo$sample_exists <- T
-    coverageData <- getCoverageData(seqrun, sample_accession)
+    coverageData <- getCoverageData(seqrun, sample_accession, path_gene_coverage_file)
 
     if (nrow(coverageData) != 0)
     {

@@ -306,11 +306,11 @@ loadReportInformation <- function(con_rb, report_data, reportInfo)
 # ---------------------------------------------------------------------------------
 # Generate sample gene coverage table (depending on the report type)
 # ---------------------------------------------------------------------------------
-getCoverageData <- function(seqrun, sample)
+getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
 {
   seqrun <- trimws(seqrun, which="both")
   sample <- trimws(sample, which="both")
-  file_name <- paste0(config$path_gene_coverage_file, seqrun,"/", sample, "/QC/", sample, "_gene_coverage.tsv")
+  file_name <- paste0(path_gene_coverage_file, seqrun,"/", sample, "/QC/", sample, "_gene_coverage.tsv")
 
   if (file.exists(file_name))
   {

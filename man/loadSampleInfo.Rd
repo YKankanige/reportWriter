@@ -5,7 +5,13 @@
 \title{Load sample information to reportInfo object. This is the main reactive object used
 by the report builder app which is also a named list}
 \usage{
-loadSampleInfo(con_pathOS, seqrun, sample_accession, reportInfo)
+loadSampleInfo(
+  con_pathOS,
+  seqrun,
+  sample_accession,
+  reportInfo,
+  path_gene_coverage_file
+)
 }
 \arguments{
 \item{con_pathOS}{PathOS DB connection}
@@ -15,6 +21,8 @@ loadSampleInfo(con_pathOS, seqrun, sample_accession, reportInfo)
 \item{sample_accession}{sample accession, character value}
 
 \item{reportInfo}{Named list from report builder/automatic generation tools with report information}
+
+\item{path_gene_coverage_file}{path to gene coverage file}
 }
 \value{
 reportInfo
