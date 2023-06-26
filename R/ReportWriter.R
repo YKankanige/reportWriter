@@ -31,6 +31,12 @@ library(yaml)
 # Helper functions for fetching and saving data
 ################################################################################################################
 
+#' Report config file
+#'
+#' @export
+"report_config"
+
+
 #' Function to generate report template using list object reportInfo
 #'
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
