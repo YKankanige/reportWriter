@@ -24,6 +24,8 @@ library(yaml)
 #sg_cebpa <- "CEBPA"
 #usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, sg_cebpa, internal=T, overwrite=T)
 
+#report_config <- read_yaml(system.file("extdata", "report_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
+#usethis::use_data(report_config, internal=F, overwrite=T)
 
 ################################################################################################################
 # Helper functions for fetching and saving data
