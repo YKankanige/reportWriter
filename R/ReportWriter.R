@@ -77,25 +77,25 @@ generateReportTemplate <- function(reportInfo)
   else if (template_name == "SG_TP53_CLL_FAIL.docx")
     template_name <- "SG_TP53_FAIL.docx"
 
-  report_template <- read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
+  report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
 
   #replace variable's in the template
   #Patient info header
-  report_template <- body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
 
   #Report area
-  report_template <- body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
-  report_template <- body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
 
   #save "reported by" if new line exists there is two
   if (grepl("\n", reportInfo$reported_by))
@@ -103,13 +103,13 @@ generateReportTemplate <- function(reportInfo)
     index <- regexpr("\n", reportInfo$reported_by)
     reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
     reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
-    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
-    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
   }
   else
   {
-    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
-    report_template <- body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
   }
 
 
@@ -124,11 +124,11 @@ generateReportTemplate <- function(reportInfo)
 
   if (reportInfo$report_template != "SG_CEBPA_germline")
   {
-    report_template <- body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
 
     if (reportInfo$report_template != "AH_cfDNA")
     {
-      report_template <- body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
     }
   }
 
@@ -137,38 +137,38 @@ generateReportTemplate <- function(reportInfo)
   {
     if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
     {
-      report_template <- body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
     }
 
     if (reportInfo$report_template == "AHD_DDX41")
     {
-      report_template <- body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
     }
   }
 
   #footer
-  report_template <- footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
-  report_template <- footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
-  report_template <- footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
-  report_template <- footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
 
   #Add coverage table
   if (reportInfo$report_type != "FAIL")
-    report_template <- cursor_reach(report_template, report_writer_config$Coverage_table_text)
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Coverage_table_text)
   else
-    report_template <- cursor_reach(report_template, report_writer_config$Panel_table_text)
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Panel_table_text)
   #Align the table left in SG reports and center in others
   table_align <- "center"
   if (grepl("^SG_", reportInfo$report_template))
     table_align <- "left"
-  report_template <- body_add_flextable(report_template, coverage_table, align=table_align)
+  report_template <- officer::body_add_flextable(report_template, coverage_table, align=table_align)
 
   #Add variants table
   if (reportInfo$report_type == "VAR")
   {
     variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
-    report_template <- cursor_reach(report_template, report_writer_config$Variants_table_text)
-    report_template <- body_add_flextable(report_template, variants_table, align="center", pos="before")
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Variants_table_text)
+    report_template <- officer::body_add_flextable(report_template, variants_table, align="center", pos="before")
   }
 
   #Add clinical context to negative and variant existing reports
@@ -177,16 +177,16 @@ generateReportTemplate <- function(reportInfo)
     if (reportInfo$clinical_context_report != " ")
     {
       file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
-      report_template <- cursor_reach(report_template, report_writer_config$Clinical_Context)
-      report_template <- body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
-      report_template <- body_add_break(report_template)
-      report_template <- body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
+      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
+      report_template <- officer::body_add_break(report_template)
+      report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
     }
     else
     {
       #Clinical context not chosen
-      report_template <- cursor_reach(report_template, report_writer_config$Clinical_Context)
-      report_template <- body_remove(report_template)
+      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- officer::body_remove(report_template)
     }
   }
 
@@ -279,7 +279,7 @@ getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
                     INNER JOIN seq_sample ON seq_sample.id = seq_variant.seq_sample_id
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
                     WHERE seq_variant.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "' AND reportable = 1;")
-  data <- dbGetQuery(con_pathOS, query)
+  data <- DBI::dbGetQuery(con_pathOS, query)
 
   if (nrow(data) == 0)
     return (data)
@@ -310,7 +310,7 @@ loadReportBuilderData <- function(con_rb, reportInfo)
 {
   query <- paste0("SELECT * FROM Sample
                     WHERE Sample.SampleName = '", reportInfo$sample_accession, "' AND Seqrun = '", reportInfo$seqrun , "';")
-  data <- dbGetQuery(con_rb, query)
+  data <- DBI::dbGetQuery(con_rb, query)
 
   if (nrow(data) != 0)
   {
@@ -326,7 +326,7 @@ loadReportBuilderData <- function(con_rb, reportInfo)
     query <- paste0("SELECT * FROM Report
                     INNER JOIN ReportBuilderInfo ON Report.ReportID = ReportBuilderInfo.ReportID
                     WHERE SampleID = '", data$SampleID, "';")
-    report_data <- dbGetQuery(con_rb, query)
+    report_data <- DBI::dbGetQuery(con_rb, query)
 
     if (nrow(report_data) > 1) #More than one report existing
     {
@@ -367,7 +367,7 @@ loadReportBuilderReport <- function(con_rb, reportInfo)
   query <- paste0("SELECT * FROM Report
                   INNER JOIN ReportBuilderInfo ON Report.ReportID = ReportBuilderInfo.ReportID
                   WHERE Report.ReportID = '", reportInfo$db_report_id, "';")
-  report_data <- dbGetQuery(con_rb, query)
+  report_data <- DBI::dbGetQuery(con_rb, query)
 
   return (loadReportInformation(con_rb, report_data, reportInfo))
 }
@@ -393,8 +393,8 @@ saveReport <- function(con_rb, reportInfo)
                                     CorrelativeMorphology='", reportInfo$correlative_morphology, "',
                                     SpecimenDetails='", reportInfo$specimen_details, "'
                                     WHERE SampleID = '", sample_id, "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
   }
   else
   {
@@ -405,10 +405,10 @@ saveReport <- function(con_rb, reportInfo)
                                           ClinicalIndication='", reportInfo$clinical_indication, "',
                                           CorrelativeMorphology='", reportInfo$correlative_morphology, "',
                                           SpecimenDetails='", reportInfo$specimen_details, "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
-    res <- dbGetQuery (con_rb, query)
+    res <- DBI::dbGetQuery (con_rb, query)
     sample_id <- res$`LAST_INSERT_ID()`
     reportInfo$db_sample_id <- sample_id
   }
@@ -443,10 +443,10 @@ saveReport <- function(con_rb, reportInfo)
                                           CreatedBy='", reportInfo$session_user, "',
                                           CreatedDate='", Sys.time(), "',
                                           LastModifiedDate='", Sys.time(), "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
-    res <- dbGetQuery (con_rb, query)
+    res <- DBI::dbGetQuery (con_rb, query)
     report_id <- res$`LAST_INSERT_ID()`
 
     #Insert reportInfo
@@ -466,10 +466,10 @@ saveReport <- function(con_rb, reportInfo)
                                           ClinicalInterpretationMiscChoices='", reportInfo$clinical_interpretation_misc_choices, "',
                                           DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
                                           DDX41Type='", reportInfo$ddx41_type, "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
-    res <- dbGetQuery (con_rb, query)
+    res <- DBI::dbGetQuery (con_rb, query)
     report_builder_id <- res$`LAST_INSERT_ID()`
 
     if (!is.null(reportInfo$variants))
@@ -480,7 +480,7 @@ saveReport <- function(con_rb, reportInfo)
       variants$AssumedOrigin <- as.character(variants$AssumedOrigin)
       variants <- variants[, c("ReportID", "Variant", "Gene", "VRF", "AssumedOrigin", "ClinicalSignificance")]
       rownames(variants) <- NULL
-      dbWriteTable(con_rb, "ReportVariant", variants, row.names=F, append=T)
+      DBI::dbWriteTable(con_rb, "ReportVariant", variants, row.names=F, append=T)
     }
 
     #Assign values to report info
@@ -506,8 +506,8 @@ saveReport <- function(con_rb, reportInfo)
                                       LastModifiedBy='", reportInfo$session_user, "',
                                       LastModifiedDate='", Sys.time(), "'
                                       WHERE ReportID = '", reportInfo$db_report_id, "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
 
     #Insert reportInfo
     query <- paste0("UPDATE ReportBuilderInfo SET ResultsSummaryDesc='", reportInfo$results_summary_desc, "',
@@ -526,13 +526,13 @@ saveReport <- function(con_rb, reportInfo)
                                         DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
                                         DDX41Type='", reportInfo$ddx41_type, "'
                                         WHERE ReportBuilderInfoID = '", reportInfo$db_report_builder_info_id, "';")
-    res <- dbSendQuery (con_rb, query)
-    dbClearResult(res)
+    res <- DBI::dbSendQuery (con_rb, query)
+    DBI::dbClearResult(res)
 
     #Now match existing variants on DB and the variants in reportInfo and perform modify, insert or delete
     query <- paste0("SELECT * FROM ReportVariant
                 WHERE ReportID = '", reportInfo$db_report_id, "';")
-    existingVariants <- dbGetQuery(con_rb, query)
+    existingVariants <- DBI::dbGetQuery(con_rb, query)
 
     existingVariants <- existingVariants[order(existingVariants$ReportVariantID, decreasing=F), ]
     existingVariants$VRF[existingVariants$VRF == "NA"] <- NA
@@ -563,8 +563,8 @@ saveReport <- function(con_rb, reportInfo)
                                             AssumedOrigin='", record$AssumedOrigin, "',
                                             ClinicalSignificance='", record$ClinicalSignificance, "'
                                             WHERE ReportVariantID = '", record$ReportVariantID, "';")
-        res <- dbSendQuery (con_rb, query)
-        dbClearResult(res)
+        res <- DBI::dbSendQuery (con_rb, query)
+        DBI::dbClearResult(res)
       }
     }
     #Existing in changed but not in DB means inserts
@@ -581,8 +581,8 @@ saveReport <- function(con_rb, reportInfo)
                                             AssumedOrigin='", record$AssumedOrigin, "',
                                             ClinicalSignificance='", record$ClinicalSignificance, "';")
 
-        res <- dbSendQuery (con_rb, query)
-        dbClearResult(res)
+        res <- DBI::dbSendQuery (con_rb, query)
+        DBI::dbClearResult(res)
       }
     }
     #If existing in existing but not in changed then deleted
@@ -594,8 +594,8 @@ saveReport <- function(con_rb, reportInfo)
         record <- records_deleted[i, ]
         query <- paste0("DELETE FROM ReportVariant WHERE ReportVariantID='", record$ReportVariantID, "';")
 
-        res <- dbSendQuery (con_rb, query)
-        dbClearResult(res)
+        res <- DBI::dbSendQuery (con_rb, query)
+        DBI::dbClearResult(res)
       }
     }
   }

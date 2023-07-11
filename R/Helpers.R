@@ -5,13 +5,13 @@
 # Gene coverage table style
 # ---------------------------------------------------------------------------------
 coverageTableThemed <- function(dataframe) {
-  set_flextable_defaults(font.size=6, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=6, font.family="Arial", na_str=" ", nan_str=" ")
 
-  table <- flextable(dataframe)
+  table <- flextable::flextable(dataframe)
 
   #Column names
   if (ncol(dataframe) == 4)
-    table <- set_header_labels(table,
+    table <- flextable::set_header_labels(table,
                                values = list(
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
@@ -19,7 +19,7 @@ coverageTableThemed <- function(dataframe) {
                                  "500x" = "Coverage at >500x (%)"
                                ))
   else
-    table <- set_header_labels(table,
+    table <- flextable::set_header_labels(table,
                                values = list(
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
@@ -37,42 +37,42 @@ coverageTableThemed <- function(dataframe) {
 
 
   #padding and colors
-  table <- colformat_double(table, decimal.mark=".", digits=1)
-  table <- padding(table, padding=0, part="all")
-  table <- padding(table, padding.left=3, part="all")
-  table <- padding(table, padding.top=1, padding.bottom=1, part="header")
-  table <- bg(table, bg="#411E75", part="header")
-  table <- color(table, color="white", part="header")
-  table <- bold(table, part="header")
-  table <- bg(table, bg="#E8E7EC", part="body")
+  table <- flextable::colformat_double(table, decimal.mark=".", digits=1)
+  table <- flextable::padding(table, padding=0, part="all")
+  table <- flextable::padding(table, padding.left=3, part="all")
+  table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
+  table <- flextable::bg(table, bg="#411E75", part="header")
+  table <- flextable::color(table, color="white", part="header")
+  table <- flextable::bold(table, part="header")
+  table <- flextable::bg(table, bg="#E8E7EC", part="body")
 
   #text alignment
-  table <- valign(table, valign="top", part="all")
+  table <- flextable::valign(table, valign="top", part="all")
 
   #borders
-  big_border = fp_border(color="white", width=3)
-  small_border = fp_border(color="white", width=0.5)
+  big_border = officer::fp_border(color="white", width=3)
+  small_border = officer::fp_border(color="white", width=0.5)
 
-  table <- border_remove(table)
-  table <- border_outer(table, part="all", border=small_border)
-  table <- border_inner_h(table, part="all", border=small_border)
-  table <- border_inner_v(table, part="all", border=small_border)
+  table <- flextable::border_remove(table)
+  table <- flextable::border_outer(table, part="all", border=small_border)
+  table <- flextable::border_inner_h(table, part="all", border=small_border)
+  table <- flextable::border_inner_v(table, part="all", border=small_border)
 
   if(ncol(dataframe) == 4)
   {
     #width
-    table <- width(table, j=c(1, 2, 3, 4),
+    table <- flextable::width(table, j=c(1, 2, 3, 4),
                    width=c(1.18, 1.55, 1.87, 1.2), unit="cm")
-    table <- set_table_properties(table, layout="fixed", width=0.33)
+    table <- flextable::set_table_properties(table, layout="fixed", width=0.33)
   }
   else
   {
-    table <- vline(table, j=c(4,8), border=big_border)
+    table <- flextable::vline(table, j=c(4,8), border=big_border)
 
     #width
-    table <- width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
                    width=c(1.18, 1.55, 1.87, 1.2, 1.33, 1.9, 1.87, 1.2, 1.18, 1.9, 1.7, 1.2), unit="cm")
-    table <- set_table_properties(table, layout="fixed", width=1)
+    table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
 
 
@@ -84,20 +84,20 @@ coverageTableThemed <- function(dataframe) {
 # Fails wont have the coverage numbers but other info will be there
 # ---------------------------------------------------------------------------------
 coverageTableThemedFail <- function(dataframe) {
-  set_flextable_defaults(font.size=6, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=6, font.family = "Arial", na_str=" ", nan_str=" ")
 
-  table <- flextable(dataframe)
+  table <- flextable::flextable(dataframe)
 
   #Column names
   if (ncol(dataframe) == 3)
-    table <- set_header_labels(table,
+    table <- flextable::set_header_labels(table,
                                values = list(
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
                                  "Targeted exons" = "Targeted exons"
                                ))
   else
-    table <- set_header_labels(table,
+    table <- flextable::set_header_labels(table,
                                values = list(
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
@@ -112,42 +112,42 @@ coverageTableThemedFail <- function(dataframe) {
 
 
   #padding and colors
-  table <- colformat_double(table, decimal.mark=".", digits=1)
-  table <- padding(table, padding=0, part="all")
-  table <- padding(table, padding.left=3, part="all")
-  table <- padding(table, padding.top=1, padding.bottom=1, part="header")
-  table <- bg(table, bg="#411E75", part="header")
-  table <- color(table, color="white", part="header")
-  table <- bold(table, part="header")
-  table <- bg(table, bg="#E8E7EC", part="body")
+  table <- flextable::colformat_double(table, decimal.mark=".", digits=1)
+  table <- flextable::padding(table, padding=0, part="all")
+  table <- flextable::padding(table, padding.left=3, part="all")
+  table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
+  table <- flextable::bg(table, bg="#411E75", part="header")
+  table <- flextable::color(table, color="white", part="header")
+  table <- flextable::bold(table, part="header")
+  table <- flextable::bg(table, bg="#E8E7EC", part="body")
 
   #text alignment
-  table <- valign(table, valign="top", part="all")
+  table <- flextable::valign(table, valign="top", part="all")
 
   #borders
-  big_border = fp_border(color="white", width=3)
-  small_border = fp_border(color="white", width=0.5)
+  big_border = officer::fp_border(color="white", width=3)
+  small_border = officer::fp_border(color="white", width=0.5)
 
-  table <- border_remove(table)
-  table <- border_outer(table, part="all", border=small_border)
-  table <- border_inner_h(table, part="all", border=small_border)
-  table <- border_inner_v(table, part="all", border=small_border)
+  table <- flextable::border_remove(table)
+  table <- flextable::border_outer(table, part="all", border=small_border)
+  table <- flextable::border_inner_h(table, part="all", border=small_border)
+  table <- flextable::border_inner_v(table, part="all", border=small_border)
 
   if(ncol(dataframe) == 3)
   {
     #width
-    table <- width(table, j=c(1, 2, 3),
+    table <- flextable::width(table, j=c(1, 2, 3),
                    width=c(1.18, 1.55, 1.87), unit="cm")
-    table <- set_table_properties(table, layout="fixed", width=0.33)
+    table <- flextable::set_table_properties(table, layout="fixed", width=0.33)
   }
   else
   {
-    table <- vline(table, j=c(3,6), border=big_border)
+    table <- flextable::vline(table, j=c(3,6), border=big_border)
 
     #width
-    table <- width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                    width=c(1.18, 1.55, 1.87, 1.33, 1.9, 1.87, 1.18, 1.9, 1.7), unit="cm")
-    table <- set_table_properties(table, layout="fixed", width=1)
+    table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
 
 
@@ -162,12 +162,12 @@ variantsTableThemed <- function(dataframe, clinical_significance_header) {
   dataframe <- dataframe[, c("AssumedOrigin", "Gene", "Variant", "VRF", "ClinicalSignificance")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
   dataframe$Variant <- gsub(" p[.]", "\np.", dataframe$Variant) #make it two lines
-  set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
 
-  table <- flextable(dataframe)
+  table <- flextable::flextable(dataframe)
 
   #Column names
-  table <- set_header_labels(table,
+  table <- flextable::set_header_labels(table,
                              values = list(
                                "AssumedOrigin" = "ASSUMED ORIGIN",
                                "Gene" = "GENE",
@@ -177,49 +177,48 @@ variantsTableThemed <- function(dataframe, clinical_significance_header) {
                              ))
 
   #padding and colors
-  table <- colformat_double(table, decimal.mark=".", digits=0)
-  table <- padding(table, padding=0, part="all")
-  #table <- padding(table, padding.left=3, part="all")
-  table <- padding(table, padding.left=3, part="all")
-  table <- bg(table, bg="#411E75", part="header")
-  table <- color(table, color="white", part="header")
-  table <- bold(table, part="all")
+  table <- flextable::colformat_double(table, decimal.mark=".", digits=0)
+  table <- flextable::padding(table, padding=0, part="all")
+  table <- flextable::padding(table, padding.left=3, part="all")
+  table <- flextable::bg(table, bg="#411E75", part="header")
+  table <- flextable::color(table, color="white", part="header")
+  table <- flextable::bold(table, part="all")
 
   #text alignment
-  table <- valign(table, valign="center", part="all")
-  table <- align(table, align="left", part="all")
+  table <- flextable::valign(table, valign="center", part="all")
+  table <- flextable::align(table, align="left", part="all")
 
   #width
-  table <- width(table, j=c(1, 2, 3, 4, 5),
+  table <- flextable::width(table, j=c(1, 2, 3, 4, 5),
                  width=c(3.48, 2, 4.75, 1, 6.75), unit="cm")
-  table <- set_table_properties(table, layout="fixed", width=1)
-  table <- hrule(table, rule="atleast", part="body")
-  table <- height(table, height=0.74, unit="cm", part="body")
+  table <- flextable::set_table_properties(table, layout="fixed", width=1)
+  table <- flextable::hrule(table, rule="atleast", part="body")
+  table <- flextable::height(table, height=0.74, unit="cm", part="body")
 
   #borders
-  small_border = fp_border(color="white", width=1.8)
-  big_border = fp_border(color="white", width=3)
+  small_border = officer::fp_border(color="white", width=1.8)
+  big_border = officer::fp_border(color="white", width=3)
 
-  table <- border_remove(table)
-  table <- border_outer(table, part="all", border=small_border)
-  table <- border_inner_h(table, part="all", border=small_border)
-  table <- border_inner_v(table, part="all", border=small_border)
+  table <- flextable::border_remove(table)
+  table <- flextable::border_outer(table, part="all", border=small_border)
+  table <- flextable::border_inner_h(table, part="all", border=small_border)
+  table <- flextable::border_inner_v(table, part="all", border=small_border)
 
   #Colour rows based on Assumed origin (if gemline different color)
   index_germline <- which(dataframe$AssumedOrigin == report_writer_config$assumed_origin_choices[6])
   if (length(index_germline) == 0)
-    table <- bg(table, bg="#CFCCD6", part="body")
+    table <- flextable::bg(table, bg="#CFCCD6", part="body")
   else
   {
     index_other <- setdiff(c(1:nrow(dataframe)), index_germline)
-    table <- bg(table, bg="#CFCCD6", part="body", i=index_other)
-    table <- bg(table, bg="#E8E7EC", part="body", i=index_germline)
+    table <- flextable::bg(table, bg="#CFCCD6", part="body", i=index_other)
+    table <- flextable::bg(table, bg="#E8E7EC", part="body", i=index_germline)
 
     if (nrow(dataframe) != 1)
-      table <- hline(table, i=(min(index_germline)-1), border=big_border)
+      table <- flextable::hline(table, i=(min(index_germline)-1), border=big_border)
   }
 
-  table <- font(table, fontname="Arial", part="header")
+  table <- flextable::font(table, fontname="Arial", part="header")
 
   return (table)
 }
@@ -248,7 +247,7 @@ getSampleInfo <- function(con_pathOS, seqrun, sample_accession)
                     INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
                     WHERE seq_sample.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "';")
-  data <- dbGetQuery(con_pathOS, query)
+  data <- DBI::dbGetQuery(con_pathOS, query)
 
   data <- data[!duplicated(data), ]
 
@@ -290,7 +289,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo)
   {
     query <- paste0("SELECT * FROM ReportVariant
                 WHERE ReportID = '", report_data$ReportID, "';")
-    variants <- dbGetQuery(con_rb, query)
+    variants <- DBI::dbGetQuery(con_rb, query)
 
     variants <- variants[order(variants$ReportVariantID, decreasing=F), ]
     variants$VRF[variants$VRF == "NA"] <- NA
@@ -479,25 +478,25 @@ negativeReportResultsSection <- function(report, reportInfo) {
   {
     if (reportInfo$clinical_interpretation_sel != " ")
     {
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
     }
     else
     {
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
       if (reportInfo$report_template != "AH_cfDNA")
-        report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, "")
+        report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, "")
     }
 
-    report <- body_replace_all_text(report, report_writer_config$Results_Summary,
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
                                     trimws(paste0(reportInfo$results_summary_flt3, reportInfo$results_summary_qual), which="both"))
   }
   else
   {
-    report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
 
     if (reportInfo$report_template == "AH_cfDNA")
-      report <- body_replace_all_text(report, report_writer_config$Results_Summary,
+      report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
                                       trimws(paste0(reportInfo$results_summary_flt3, reportInfo$results_summary_qual), which="both"))
   }
 
@@ -517,34 +516,34 @@ variantsReportResultsSection <- function(report, reportInfo) {
       text1 <- trimws(substring(reportInfo$clinical_interpretation_txt_var, 0, index), which="both")
       text2 <- trimws(substring(reportInfo$clinical_interpretation_txt_var, index+1, nchar(reportInfo$clinical_interpretation_txt_var)), which="both")
 
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, text1)
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, text2)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, text1)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, text2)
 
       report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation3, report_writer_config$Clinical_Interpretation4, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
     }
     else
     {
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
       report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
-      report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation4, "")
+      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation4, "")
     }
   }
   else if (reportInfo$report_template == "SG_CEBPA_germline")
   {
-    report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
-    report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
   }
   else
   {
-    report <- body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
     report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
   }
 
   #results summary
-  report <- body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
+  report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
   if (reportInfo$report_template != "SG_CEBPA_germline")
   {
-    report <- body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
   }
 
   return(report)
@@ -556,13 +555,13 @@ variantsReportResultsSection <- function(report, reportInfo) {
 replacepnSelClinicalInterpret <- function(report, label1, label2, sel_clinical_interpretation, txt_clinical_interpretation) {
   if (sel_clinical_interpretation != " ")
   {
-    report <- body_replace_all_text(report, label1, sel_clinical_interpretation)
-    report <- body_replace_all_text(report, label2, txt_clinical_interpretation)
+    report <- officer::body_replace_all_text(report, label1, sel_clinical_interpretation)
+    report <- officer::body_replace_all_text(report, label2, txt_clinical_interpretation)
   }
   else
   {
-    report <- body_replace_all_text(report, label1, txt_clinical_interpretation)
-    report <- body_replace_all_text(report, label2, "")
+    report <- officer::body_replace_all_text(report, label1, txt_clinical_interpretation)
+    report <- officer::body_replace_all_text(report, label2, "")
   }
 
   return (report)
