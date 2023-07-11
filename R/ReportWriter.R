@@ -161,14 +161,14 @@ generateReportTemplate <- function(reportInfo)
   table_align <- "center"
   if (grepl("^SG_", reportInfo$report_template))
     table_align <- "left"
-  report_template <- officer::body_add_flextable(report_template, coverage_table, align=table_align)
+  report_template <- flextable::body_add_flextable(report_template, coverage_table, align=table_align)
 
   #Add variants table
   if (reportInfo$report_type == "VAR")
   {
     variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
     report_template <- officer::cursor_reach(report_template, report_writer_config$Variants_table_text)
-    report_template <- officer::body_add_flextable(report_template, variants_table, align="center", pos="before")
+    report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
   }
 
   #Add clinical context to negative and variant existing reports
