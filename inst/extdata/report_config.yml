@@ -16,7 +16,6 @@ report_template_choices:
     "AllHaemV1_AHD(57)_DDX41" : "AHD_DDX41"
     "AllHaemV1_MDX(22)" : "MDX"
     "AllHaemV1_MDX(22)_MPNcontext" : "MDX_MPN"
-    "AllHaemV1_SG(CEBPA_germline)" : "SG_CEBPA_germline"
     "AllHaemV1_SG(TP53)" : "SG_TP53"
     "AllHaemV1_SG(TP53)_CLLcontext" : "SG_TP53_CLL"
 report_type_choices:

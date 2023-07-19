@@ -392,15 +392,6 @@ returnCoverageTable <- function(sample_coverage_data, report_type)
 
     return (sample_coverage_sub_sg)
   }
-  else if (report_type == "SG_CEBPA_germline")
-  {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% sg_cebpa)
-    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
-
-    return (sample_coverage_sub_sg)
-  }
 
   return(NULL)
 }
@@ -457,12 +448,6 @@ returnCoverageTableFail <- function(report_type)
 
     return (sample_coverage_sub_sg)
   }
-  else if (report_type == "SG_CEBPA_germline")
-  {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% sg_cebpa)
-
-    return (sample_coverage_sub_sg)
-  }
 
   return(NULL)
 }
@@ -474,7 +459,7 @@ returnCoverageTableFail <- function(report_type)
 # Add clinical interpretation and results summary of negative reports to template
 # ---------------------------------------------------------------------------------
 negativeReportResultsSection <- function(report, reportInfo) {
-  if (!(reportInfo$report_template %in% c("SG_CEBPA_germline", "AH_cfDNA")))
+  if (reportInfo$report_template != "AH_cfDNA")
   {
     if (reportInfo$clinical_interpretation_sel != " ")
     {
@@ -484,8 +469,6 @@ negativeReportResultsSection <- function(report, reportInfo) {
     else
     {
       report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
-      if (reportInfo$report_template != "AH_cfDNA")
-        report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, "")
     }
 
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
@@ -528,11 +511,6 @@ variantsReportResultsSection <- function(report, reportInfo) {
       report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation4, "")
     }
   }
-  else if (reportInfo$report_template == "SG_CEBPA_germline")
-  {
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
-  }
   else
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
@@ -541,10 +519,7 @@ variantsReportResultsSection <- function(report, reportInfo) {
 
   #results summary
   report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
-  if (reportInfo$report_template != "SG_CEBPA_germline")
-  {
-    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
-  }
+  report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
 
   return(report)
 }

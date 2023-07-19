@@ -21,8 +21,7 @@ library(yaml)
 #mpn_dx <- c("ASXL1", "CALR", "CBL", "CSF3R", "ETNK1", "EZH2", "IDH1", "IDH2", "JAK2", "KIT", "KRAS", "MPL", "NRAS", "RUNX1", "SETBP1", "SF3B1", "SH2B3",
 #            "SRSF2", "TET2", "TP53", "U2AF1", "ZRSR2")
 #sg_tp53 <- "TP53"
-#sg_cebpa <- "CEBPA"
-#usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, sg_cebpa, internal=T, overwrite=T)
+#usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, internal=T, overwrite=T)
 
 #report_config <- read_yaml(system.file("extdata", "report_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
 #usethis::use_data(report_config, internal=F, overwrite=T)
@@ -94,6 +93,7 @@ generateReportTemplate <- function(reportInfo)
   report_template <- officer::body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
 
   #Report area
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
   report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
   report_template <- officer::body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
 
@@ -122,14 +122,9 @@ generateReportTemplate <- function(reportInfo)
     report_template <- variantsReportResultsSection(report_template, reportInfo)
   }
 
-  if (reportInfo$report_template != "SG_CEBPA_germline")
+  if (reportInfo$report_template != "AH_cfDNA")
   {
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
-
-    if (reportInfo$report_template != "AH_cfDNA")
-    {
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
-    }
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
   }
 
   #FLT3_ITD and DDX41 germline variant analysis in reports with variants
@@ -172,7 +167,7 @@ generateReportTemplate <- function(reportInfo)
   }
 
   #Add clinical context to negative and variant existing reports
-  if ((reportInfo$report_type != "FAIL") && (reportInfo$report_template != "SG_CEBPA_germline"))
+  if (reportInfo$report_type != "FAIL")
   {
     if (reportInfo$clinical_context_report != " ")
     {
