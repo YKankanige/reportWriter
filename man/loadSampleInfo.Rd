@@ -3,7 +3,8 @@
 \name{loadSampleInfo}
 \alias{loadSampleInfo}
 \title{Load sample information to reportInfo object. This is the main reactive object used
-by the report builder app which is also a named list}
+by the report builder app which is also a named list
+Used by Report Builder}
 \usage{
 loadSampleInfo(
   con_pathOS,
@@ -30,4 +31,5 @@ reportInfo
 \description{
 Load sample information to reportInfo object. This is the main reactive object used
 by the report builder app which is also a named list
+Used by Report Builder
 }

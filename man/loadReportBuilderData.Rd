@@ -3,7 +3,8 @@
 \name{loadReportBuilderData}
 \alias{loadReportBuilderData}
 \title{Load sample information to reportInfo object and report information to reportInfo objects
-If there is a report existing, only load basic report information if there are multiple reports per sample}
+If there is a report existing, only load basic report information if there are multiple reports per sample
+Used by Report Builder}
 \usage{
 loadReportBuilderData(con_rb, reportInfo)
 }
@@ -18,4 +19,5 @@ reportInfo
 \description{
 Load sample information to reportInfo object and report information to reportInfo objects
 If there is a report existing, only load basic report information if there are multiple reports per sample
+Used by Report Builder
 }

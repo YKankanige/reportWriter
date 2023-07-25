@@ -2,7 +2,8 @@
 % Please edit documentation in R/ReportWriter.R
 \name{getVariantInfo}
 \alias{getVariantInfo}
-\title{Fetch variant info from pathos database}
+\title{Fetch variant info from pathos database
+Used by Report Builder}
 \usage{
 getVariantInfo(con_pathOS, seqrun, sample_accession)
 }
@@ -18,4 +19,5 @@ dataframe with variant information
 }
 \description{
 Fetch variant info from pathos database
+Used by Report Builder
 }

@@ -3,7 +3,8 @@
 \name{loadReportBuilderReport}
 \alias{loadReportBuilderReport}
 \title{Load report information to reportInfo object
-This call uses the reportID in reportInfo object}
+This call uses the reportID in reportInfo object
+Used by Report Builder}
 \usage{
 loadReportBuilderReport(con_rb, reportInfo)
 }
@@ -18,4 +19,5 @@ reportInfo
 \description{
 Load report information to reportInfo object
 This call uses the reportID in reportInfo object
+Used by Report Builder
 }

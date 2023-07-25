@@ -2,7 +2,8 @@
 % Please edit documentation in R/ReportWriter.R
 \name{saveReport}
 \alias{saveReport}
-\title{Save report to Report builder database, also fetching report id etc when saved if this is a new report}
+\title{Save report to Report builder database, also fetching report id etc when saved if this is a new report
+Used by Report Builder}
 \usage{
 saveReport(con_rb, reportInfo)
 }
@@ -16,4 +17,5 @@ reportInfo
 }
 \description{
 Save report to Report builder database, also fetching report id etc when saved if this is a new report
+Used by Report Builder
 }
