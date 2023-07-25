@@ -30,12 +30,6 @@ library(yaml)
 # Helper functions for fetching and saving data
 ################################################################################################################
 
-#' Report config file
-#'
-#' @export
-"report_config"
-
-
 #' Load sample information to reportInfo object. This is the main reactive object used
 #' by the report builder app which is also a named list
 #' Used by Report Builder
@@ -851,3 +845,4 @@ generateReportTemplate <- function(reportInfo)
 
   return (report_template)
 }
+
