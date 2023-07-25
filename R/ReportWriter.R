@@ -503,7 +503,7 @@ loadVariants <- function(con_pathOS, samples, seqrun)
 #' @return a list of reportInfo objects one per sample (named list)
 #'
 #' @export
-loadPathOSData <- function(con_pathos, samples, seqrun)
+loadPathOSData <- function(con_pathOS, samples, seqrun)
 {
   lst_reportInfo <- list()
 
