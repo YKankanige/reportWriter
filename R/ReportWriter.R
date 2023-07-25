@@ -36,160 +36,9 @@ library(yaml)
 "report_config"
 
 
-#' Function to generate report template using list object reportInfo
-#'
-#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
-#'
-#' @return report_template which is a word document template
-#'
-#' @export
-generateReportTemplate <- function(reportInfo)
-{
-  #generate the coverage table and format
-  if (reportInfo$report_type != "FAIL")
-  {
-    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template)
-    coverage_table <- coverageTableThemed(data_coverage)
-  }
-  else
-  {
-    data_coverage <- returnCoverageTableFail(reportInfo$report_template)
-    coverage_table <- coverageTableThemedFail(data_coverage)
-  }
-
-  #Read the relevant template
-  template_name <- paste0(reportInfo$report_template, "_", reportInfo$report_type, ".docx")
-  if (template_name == "AHD_DDX41_NEG.docx")
-    template_name <- "AHD_NEG.docx"
-  else if (template_name == "MDX_MPN_NEG.docx")
-    template_name <- "MDX_NEG.docx"
-  else if (template_name == "MDX_MPN_VAR.docx")
-    template_name <- "MDX_VAR.docx"
-  else if (template_name == "SG_TP53_CLL_NEG.docx")
-    template_name <- "SG_TP53_NEG.docx"
-  else if (template_name == "SG_TP53_CLL_VAR.docx")
-    template_name <- "SG_TP53_VAR.docx"
-  else if (template_name == "AHD_DDX41_FAIL.docx")
-    template_name <- "AHD_FAIL.docx"
-  else if (template_name == "MDX_MPN_FAIL.docx")
-    template_name <- "MDX_FAIL.docx"
-  else if (template_name == "SG_TP53_CLL_FAIL.docx")
-    template_name <- "SG_TP53_FAIL.docx"
-
-  report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
-
-  #replace variable's in the template
-  #Patient info header
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
-
-  #Report area
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
-
-  #save "reported by" if new line exists there is two
-  if (grepl("\n", reportInfo$reported_by))
-  {
-    index <- regexpr("\n", reportInfo$reported_by)
-    reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
-    reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
-  }
-  else
-  {
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
-  }
-
-
-  if (reportInfo$report_type == "NEG")
-  {
-    report_template <- negativeReportResultsSection(report_template, reportInfo)
-  }
-  else if (reportInfo$report_type == "VAR")
-  {
-    report_template <- variantsReportResultsSection(report_template, reportInfo)
-  }
-
-  if (reportInfo$report_template != "AH_cfDNA")
-  {
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
-  }
-
-  #FLT3_ITD and DDX41 germline variant analysis in reports with variants
-  if (reportInfo$report_type == "VAR")
-  {
-    if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
-    {
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
-    }
-
-    if (reportInfo$report_template == "AHD_DDX41")
-    {
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
-    }
-  }
-
-  #footer
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
-
-  #Add coverage table
-  if (reportInfo$report_type != "FAIL")
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Coverage_table_text)
-  else
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Panel_table_text)
-  #Align the table left in SG reports and center in others
-  table_align <- "center"
-  if (grepl("^SG_", reportInfo$report_template))
-    table_align <- "left"
-  report_template <- flextable::body_add_flextable(report_template, coverage_table, align=table_align)
-
-  #Add variants table
-  if (reportInfo$report_type == "VAR")
-  {
-    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Variants_table_text)
-    report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
-  }
-
-  #Add clinical context to negative and variant existing reports
-  if (reportInfo$report_type != "FAIL")
-  {
-    if (reportInfo$clinical_context_report != " ")
-    {
-      file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
-      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
-      report_template <- officer::body_add_break(report_template)
-      report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
-    }
-    else
-    {
-      #Clinical context not chosen
-      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
-      report_template <- officer::body_remove(report_template)
-    }
-  }
-
-  return (report_template)
-}
-
 #' Load sample information to reportInfo object. This is the main reactive object used
 #' by the report builder app which is also a named list
+#' Used by Report Builder
 #'
 #' @param con_pathOS PathOS DB connection
 #' @param seqrun seqrun, character value
@@ -249,6 +98,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
 
 
 #' Fetch variant info from pathos database
+#' Used by Report Builder
 #'
 #' @param con_pathOS PathOS DB connection
 #' @param seqrun seqrun, character value
@@ -294,6 +144,7 @@ getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
 
 #' Load sample information to reportInfo object and report information to reportInfo objects
 #' If there is a report existing, only load basic report information if there are multiple reports per sample
+#' Used by Report Builder
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
@@ -349,6 +200,7 @@ loadReportBuilderData <- function(con_rb, reportInfo)
 
 #' Load report information to reportInfo object
 #' This call uses the reportID in reportInfo object
+#' Used by Report Builder
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
@@ -369,6 +221,7 @@ loadReportBuilderReport <- function(con_rb, reportInfo)
 
 
 #' Save report to Report builder database, also fetching report id etc when saved if this is a new report
+#' Used by Report Builder
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
@@ -596,4 +449,405 @@ saveReport <- function(con_rb, reportInfo)
   }
 
   return (reportInfo)
+}
+
+
+#' Load samples of the seqrun from PathOS
+#' Used by NVD Identifier
+#'
+#' @param con_pathOS PathOS database connection
+#' @param seqrun seqrun
+#'
+#' @return a dataframe with sample information
+#'
+#' @export
+loadSamples <- function(con_pathOS, seqrun)
+{
+  query <- paste0("SELECT seqrun.seqrun AS Seqrun, seq_sample.id AS SeqSampleID, seq_sample.sample_name AS SampleName FROM seq_sample
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    WHERE seqrun.seqrun = '", seqrun , "';")
+  samples_df <- dbGetQuery(con_pathOS, query)
+
+  return (samples_df)
+}
+
+#' Load variants of the samples in seqrun from PathOS
+#' Used by NVD Identifier
+#'
+#' @param con_pathOS PathOS database connection
+#' @param samples vector of sample accessions
+#' @param seqrun seqrun
+#'
+#' @return a dataframe with variant information
+#'
+#' @export
+loadVariants <- function(con_pathOS, samples, seqrun)
+{
+  samples <- paste0("'", samples, "'")
+  samples_str <- paste(samples, collapse = ", ")
+  query <- paste0("SELECT seq_variant.gene AS Gene, seq_variant.chr AS Chr, seq_variant.hgvsc AS Hgvsc, seq_variant.hgvsg AS Hgvsg,
+                    seq_variant.hgvsp AS Hgvsp, seq_variant.pos AS Pos, seq_variant.var_freq AS VarFreq, seq_variant.var_panel_pct AS VarPanelPct,
+                    filter_flag AS FilterFlag, seq_variant.var_samples_seen_in_panel AS VarSamplesSeenInPanel, seq_variant.sample_name AS SampleAccession,
+                    cur_variant.overall_class AS ClinicalSignificance from seq_variant
+                    INNER JOIN seq_sample ON seq_sample.id = seq_variant.seq_sample_id
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    LEFT OUTER JOIN cur_variant ON seq_sample.clin_context_id = cur_variant.clin_context_id AND cur_variant.hgvsg = seq_variant.hgvsg
+                    WHERE seq_variant.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "';")
+  data_all <- dbGetQuery(con_pathOS, query)
+
+  return (data_all)
+}
+
+
+#' Load information in PathOS DB to prepare for saving a subset of samples of a seqrun
+#' Used by NVD Identifier
+#'
+#' @param con_pathOS PathOS database connection
+#' @param samples vector of sample accessions
+#' @param seqrun seqrun
+#'
+#' @return a list of reportInfo objects one per sample (named list)
+#'
+#' @export
+loadPathOSData <- function(con_pathos, samples, seqrun)
+{
+  lst_reportInfo <- list()
+
+  #Check whether the sample, seqrun combination exists
+  sample_names <- samples
+  sample_names <- paste0("'", sample_names, "'")
+  samples_str <- paste(sample_names, collapse = ", ")
+  #print(samples_str)
+
+  query <- paste0("SELECT patient.*, seqrun.seqrun, pat_sample.collect_date, pat_sample.rcvd_date,
+                    pat_sample.requester, pat_sample.pathlab, pat_sample.ext_sample, seq_sample.id as seq_sample_id, seq_sample.sample_name FROM seq_sample
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
+                    INNER JOIN patient ON pat_sample.patient_id = patient.id
+                    WHERE seq_sample.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "';")
+  data <- dbGetQuery(con_pathOS, query)
+  data <- data[!duplicated(data), ]
+
+  #Create a named list per sample and add to the list
+  for (i in 1:nrow(data))
+  {
+    dataItem <- data[i,]
+    reportInfo <- list()
+    reportInfo$sample_accession <- dataItem$sample_name
+    reportInfo$seqrun <- dataItem$seqrun
+    reportInfo$specimen_type <- NA #specimen type not available, check
+    reportInfo$collected_date <- formatDate(dataItem$collect_date)
+    reportInfo$received_date <- formatDate(dataItem$rcvd_date)
+    reportInfo$requester <- dataItem$requester
+    reportInfo$referral_lab <- dataItem$pathlab
+    reportInfo$ext_ref <- dataItem$ext_sample
+    reportInfo$patient_name <- dataItem$full_name
+    reportInfo$urn <- dataItem$urn
+    reportInfo$dob <- formatDate(dataItem$dob)
+    reportInfo$gender <- dataItem$sex
+
+    lst_reportInfo[[i]] <- reportInfo
+  }
+
+  return(lst_reportInfo)
+}
+
+
+#' Check whether samples/reports exist in report builder database for the seqrun
+#' Used by NVD Identifier
+#'
+#' @param con_rb Report builder database connection
+#' @param seqrun seqrun
+#'
+#' @return a data frame with Sample, Report and ReportBuilderInfo tables
+#'
+#' @export
+loadReportBuilderInfo <- function(con_rb, seqrun)
+{
+  query <- paste0("SELECT * FROM Sample
+                    WHERE Seqrun = '", seqrun , "';")
+  data <- dbGetQuery(con_rb, query)
+
+  if (nrow(data) != 0) #Samples exist in report builder DB
+  {
+    sampleID_str <- paste0("'", data$SampleID, "'")
+    sampleID_str <- paste(sampleID_str, collapse = ", ")
+
+    query <- paste0("SELECT * FROM Report
+                    INNER JOIN ReportBuilderInfo ON Report.ReportID = ReportBuilderInfo.ReportID
+                    WHERE SampleID IN (", sampleID_str, ");")
+    report_data <- dbGetQuery(con_rb, query)
+
+    if(nrow(report_data) != 0)
+    {
+      data <- base::merge(data, report_data, all=T)
+      data <- subset(data, select=-c(ReportID.1))
+    }
+    else
+    {
+      #Have the columns ready and add NA
+      vals_NA <- rep(NA, nrow(data))
+      data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA,
+                               ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA, FLT3ITDAnalysis=vals_NA, DDX41GermlineVarAnalysis=vals_NA,
+                               AuthorisedBy=vals_NA, ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA,
+                               LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA, ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA,
+                               ResultsSummaryVarDesc=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
+                               ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA,
+                               ClinicalInterpretationDDX41=vals_NA, ClinicalInterpretationMiscChoices=vals_NA, ClinicalContext=vals_NA,
+                               DDX41Pathogenicity=vals_NA, DDX41Type=vals_NA)
+      data <- cbind(data, data_other)
+    }
+  }
+  else
+  {
+    data <- data.frame(SampleID=numeric(0), SampleName=character(0), Seqrun=character(0), Specimen=character(0), ClinicalIndication=character(0), CorrelativeMorphology=character(0),
+                       SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), ReportID=numeric(0), Template=character(0), Type=character(0), Name=character(0), Status=character(0), ResultsSummary=character(0),
+                       ClinicalInterpretation=character(0), ClinicalContextReport=character(0), FLT3ITDAnalysis=character(0), DDX41GermlineVarAnalysis=character(0),
+                       AuthorisedBy=character(0), ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0),
+                       LastModifiedDate=as.Date(character(0)), ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0),
+                       ResultsSummaryVarDesc=character(0), ClinicalInterpretationDesc=character(0), ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0),
+                       ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0), ClinicalInterpretationDisease=character(0),
+                       ClinicalInterpretationDDX41=character(0), ClinicalInterpretationMiscChoices=character(0), ClinicalContext=character(0),
+                       DDX41Pathogenicity=character(0), DDX41Type=character(0))
+  }
+
+  return (data)
+}
+
+
+#' Save sample information from data file to report builder db
+#' Used by NVD Identifier
+#'
+#' @param con_rb Report builder database connection
+#' @param data data with sample information
+#'
+#'
+#' @export
+saveSampleInfo <- function(con_rb, data)
+{
+  sample_data <- data[, c("LabID", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel","ClinicalContext")]
+  colnames(sample_data) <- c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel","InitialClinicalContextReport")
+  DBI::dbWriteTable(con_rb, "Sample", sample_data, row.names=F, append=T)
+}
+
+#' Save NVD reports to report builder db
+#' Used by NVD Identifier
+#'
+#' @param con_rb Report builder database connection
+#' @param report_DB_data data with NVD report information, one row per report, all tables in one row
+#' @param seqrun seqrun
+#'
+#'
+#' @export
+saveNVDReports <- function(con_rb, report_DB_data, seqrun)
+{
+  #insert samples, if SampleID is not NA update, otherwise insert
+  sample_data <- report_DB_data[, c("SampleID", "SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails")]
+  index_samples <- which(!is.na(sample_data$SampleID))
+  if (length(index_samples) > 0)
+  {
+    sample_data_existing <- sample_data[index_samples, ]
+    sample_data <- sample_data[-index_samples, ]
+
+    for (i in 1:nrow(sample_data_existing))
+    {
+      query <- paste0("UPDATE Sample SET  Specimen='", sample_data_existing[i, ]$Specimen, "',
+                                    ClinicalIndication='", sample_data_existing[i, ]$ClinicalIndication, "',
+                                    CorrelativeMorphology='", sample_data_existing[i, ]$CorrelativeMorphology, "',
+                                    SpecimenDetails='", sample_data_existing[i, ]$SpecimenDetails, "'
+                                    WHERE SampleID = '", sample_data_existing[i, ]$SampleID, "';")
+      res <- DBI::dbSendQuery (con_rb, query)
+      DBI::dbClearResult(res)
+    }
+  }
+
+  #Add new samples
+  if (nrow(sample_data) > 0)
+  {
+    sample_data <- sample_data[, -1] #Remove SampleID column
+    DBI::dbWriteTable(con_rb, "Sample", sample_data, row.names=F, append=T)
+
+    #Get sample IDs
+    query <- paste0("SELECT * FROM Sample
+                    WHERE Seqrun = '", seqrun, "';")
+    data <- dbGetQuery(con_rb, query)
+    report_DB_data$SampleID <- sapply(report_DB_data$SampleName, function(sample_name, data)
+    {
+      index <- (which(data$SampleName == sample_name))
+      data[index, ]$SampleID
+    }, data=data)
+  }
+
+  #Add new reports
+  report_data <- report_DB_data[, c("SampleID", "Template", "Type", "Name", "Status", "ResultsSummary", "ClinicalInterpretation", "ClinicalContextReport", "AuthorisedBy", "ReportedBy",
+                                    "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate")]
+  DBI::dbWriteTable(con_rb, "Report", report_data, row.names=F, append=T)
+  #Get sample IDs
+  query <- paste0("SELECT * FROM Report INNER JOIN Sample ON Sample.SampleID = Report.SampleID
+                    WHERE Sample.Seqrun = '", seqrun, "';")
+  data <- dbGetQuery(con_rb, query)
+  report_DB_data$ReportID <- sapply(report_DB_data$SampleName, function(sample_name, data)  #We can do this because a Sample Seqrun combination with more than one reports cannot be here
+  {
+    index <- (which(data$SampleName == sample_name))
+    data[index, ]$ReportID
+  }, data=data)
+
+
+  #Add new ReportBuilderInfo
+  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc",
+                                                "ClinicalInterpretationOther")]
+  DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
+}
+
+
+#' Function to generate report template using list object reportInfo
+#'
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#'
+#' @return report_template which is a word document template
+#'
+#' @export
+generateReportTemplate <- function(reportInfo)
+{
+  #generate the coverage table and format
+  if (reportInfo$report_type != "FAIL")
+  {
+    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template)
+    coverage_table <- coverageTableThemed(data_coverage)
+  }
+  else
+  {
+    data_coverage <- returnCoverageTableFail(reportInfo$report_template)
+    coverage_table <- coverageTableThemedFail(data_coverage)
+  }
+
+  #Read the relevant template
+  template_name <- paste0(reportInfo$report_template, "_", reportInfo$report_type, ".docx")
+  if (template_name == "AHD_DDX41_NEG.docx")
+    template_name <- "AHD_NEG.docx"
+  else if (template_name == "MDX_MPN_NEG.docx")
+    template_name <- "MDX_NEG.docx"
+  else if (template_name == "MDX_MPN_VAR.docx")
+    template_name <- "MDX_VAR.docx"
+  else if (template_name == "SG_TP53_CLL_NEG.docx")
+    template_name <- "SG_TP53_NEG.docx"
+  else if (template_name == "SG_TP53_CLL_VAR.docx")
+    template_name <- "SG_TP53_VAR.docx"
+  else if (template_name == "AHD_DDX41_FAIL.docx")
+    template_name <- "AHD_FAIL.docx"
+  else if (template_name == "MDX_MPN_FAIL.docx")
+    template_name <- "MDX_FAIL.docx"
+  else if (template_name == "SG_TP53_CLL_FAIL.docx")
+    template_name <- "SG_TP53_FAIL.docx"
+
+  report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
+
+  #replace variable's in the template
+  #Patient info header
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
+
+  #Report area
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
+  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
+
+  #save "reported by" if new line exists there is two
+  if (grepl("\n", reportInfo$reported_by))
+  {
+    index <- regexpr("\n", reportInfo$reported_by)
+    reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
+    reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
+  }
+  else
+  {
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
+  }
+
+
+  if (reportInfo$report_type == "NEG")
+  {
+    report_template <- negativeReportResultsSection(report_template, reportInfo)
+  }
+  else if (reportInfo$report_type == "VAR")
+  {
+    report_template <- variantsReportResultsSection(report_template, reportInfo)
+  }
+
+  if (reportInfo$report_template != "AH_cfDNA")
+  {
+    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
+  }
+
+  #FLT3_ITD and DDX41 germline variant analysis in reports with variants
+  if (reportInfo$report_type == "VAR")
+  {
+    if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
+    {
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
+    }
+
+    if (reportInfo$report_template == "AHD_DDX41")
+    {
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
+    }
+  }
+
+  #footer
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
+
+  #Add coverage table
+  if (reportInfo$report_type != "FAIL")
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Coverage_table_text)
+  else
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Panel_table_text)
+  #Align the table left in SG reports and center in others
+  table_align <- "center"
+  if (grepl("^SG_", reportInfo$report_template))
+    table_align <- "left"
+  report_template <- flextable::body_add_flextable(report_template, coverage_table, align=table_align)
+
+  #Add variants table
+  if (reportInfo$report_type == "VAR")
+  {
+    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
+    report_template <- officer::cursor_reach(report_template, report_writer_config$Variants_table_text)
+    report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
+  }
+
+  #Add clinical context to negative and variant existing reports
+  if (reportInfo$report_type != "FAIL")
+  {
+    if (reportInfo$clinical_context_report != " ")
+    {
+      file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
+      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
+      report_template <- officer::body_add_break(report_template)
+      report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
+    }
+    else
+    {
+      #Clinical context not chosen
+      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- officer::body_remove(report_template)
+    }
+  }
+
+  return (report_template)
 }
