@@ -832,7 +832,7 @@ generateReportTemplate <- function(reportInfo)
       file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
       report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
       report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
-      report_template <- officer::body_add_break(report_template)
+      #report_template <- officer::body_add_break(report_template)
       report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T))
     }
     else
