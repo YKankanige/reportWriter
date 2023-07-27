@@ -59,7 +59,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
       reportInfo$initialized <- T
       reportInfo$sample_accession <- data$sample_name
       reportInfo$seqrun <- data$seqrun
-      reportInfo$specimen_type <- NA #specimen type not available, check
+      reportInfo$specimen_type <- " " #specimen type not available, check
       reportInfo$collected_date <- formatDate(data$collect_date)
       reportInfo$received_date <- formatDate(data$rcvd_date)
       reportInfo$requester <- data$requester
@@ -161,6 +161,8 @@ loadReportBuilderData <- function(con_rb, reportInfo)
     reportInfo$clinical_indication <- data$ClinicalIndication
     reportInfo$correlative_morphology <- data$CorrelativeMorphology
     reportInfo$specimen_details <- data$SpecimenDetails
+    reportInfo$clinical_context_report <- data$InitialClinicalContextReport
+    reportInfo$requested_panel <- data$RequestedPanel
 
     #Check whether a report exists (sample info can exist without a report if loaded via NVD identifier)
     query <- paste0("SELECT * FROM Report
