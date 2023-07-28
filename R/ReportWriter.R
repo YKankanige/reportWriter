@@ -676,7 +676,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
   #Add new reports
   report_data <- report_DB_data[, c("SampleID", "Template", "Type", "Name", "Status", "ResultsSummary", "ClinicalInterpretation", "ClinicalContextReport", "AuthorisedBy", "ReportedBy",
-                                    "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate")]
+                                    "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "FLT3ITDAnalysis", "DDX41GermlineVarAnalysis")]
   DBI::dbWriteTable(con_rb, "Report", report_data, row.names=F, append=T)
   #Get sample IDs
   query <- paste0("SELECT * FROM Report INNER JOIN Sample ON Sample.SampleID = Report.SampleID
@@ -690,8 +690,9 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
 
   #Add new ReportBuilderInfo
-  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc",
-                                                "ClinicalInterpretationOther")]
+  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc", "ClinicalInterpretationOther",
+                                                "ClinicalContext", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
+                                                "ClinicalInterpretationDisease", "ClinicalInterpretationDDX41", "ClinicalInterpretationMiscChoices", "DDX41Pathogenicity", "DDX41Type")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
 }
 
