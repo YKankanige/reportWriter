@@ -690,7 +690,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
   #Add new ReportBuilderInfo
   report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc", "ClinicalInterpretationOther",
-                                                , "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
+                                                "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
                                                 "ClinicalInterpretationDisease", "ClinicalInterpretationDDX41", "ClinicalInterpretationMiscChoices", "DDX41Pathogenicity", "DDX41Type")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
 }
