@@ -279,6 +279,7 @@ saveReport <- function(con_rb, reportInfo)
                                           ResultsSummary='", results_summary, "',
                                           ClinicalInterpretation='", clinical_interpretation, "',
                                           ClinicalContextReport='", reportInfo$clinical_context_report, "',
+                                          ClinicalContext='", reportInfo$clinical_context, "',
                                           FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
                                           DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
                                           AuthorisedBy='", reportInfo$authorised_by, "',
@@ -302,7 +303,6 @@ saveReport <- function(con_rb, reportInfo)
                                           ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
                                           ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
                                           ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
-                                          ClinicalContext='", reportInfo$clinical_context, "',
                                           ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
                                           ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
                                           ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
@@ -343,6 +343,7 @@ saveReport <- function(con_rb, reportInfo)
                                       ResultsSummary='", results_summary, "',
                                       ClinicalInterpretation='", clinical_interpretation, "',
                                       ClinicalContextReport='", reportInfo$clinical_context_report, "',
+                                      ClinicalContext='", reportInfo$clinical_context, "',
                                       FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
                                       DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
                                       AuthorisedBy='", reportInfo$authorised_by, "',
@@ -361,7 +362,6 @@ saveReport <- function(con_rb, reportInfo)
                                         ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
                                         ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
                                         ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
-                                        ClinicalContext='", reportInfo$clinical_context, "',
                                         ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
                                         ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
                                         ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
@@ -584,12 +584,12 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
       #Have the columns ready and add NA
       vals_NA <- rep(NA, nrow(data))
       data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA,
-                               ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA, FLT3ITDAnalysis=vals_NA, DDX41GermlineVarAnalysis=vals_NA,
+                               ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA, ClinicalContext=vals_NA, FLT3ITDAnalysis=vals_NA, DDX41GermlineVarAnalysis=vals_NA,
                                AuthorisedBy=vals_NA, ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA,
                                LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA, ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA,
                                ResultsSummaryVarDesc=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
                                ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA,
-                               ClinicalInterpretationDDX41=vals_NA, ClinicalInterpretationMiscChoices=vals_NA, ClinicalContext=vals_NA,
+                               ClinicalInterpretationDDX41=vals_NA, ClinicalInterpretationMiscChoices=vals_NA,
                                DDX41Pathogenicity=vals_NA, DDX41Type=vals_NA)
       data <- cbind(data, data_other)
     }
@@ -598,13 +598,12 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
   {
     data <- data.frame(SampleID=numeric(0), SampleName=character(0), Seqrun=character(0), Specimen=character(0), ClinicalIndication=character(0), CorrelativeMorphology=character(0),
                        SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), ReportID=numeric(0), Template=character(0), Type=character(0), Name=character(0), Status=character(0), ResultsSummary=character(0),
-                       ClinicalInterpretation=character(0), ClinicalContextReport=character(0), FLT3ITDAnalysis=character(0), DDX41GermlineVarAnalysis=character(0),
+                       ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0), FLT3ITDAnalysis=character(0), DDX41GermlineVarAnalysis=character(0),
                        AuthorisedBy=character(0), ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0),
                        LastModifiedDate=as.Date(character(0)), ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0),
                        ResultsSummaryVarDesc=character(0), ClinicalInterpretationDesc=character(0), ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0),
                        ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0), ClinicalInterpretationDisease=character(0),
-                       ClinicalInterpretationDDX41=character(0), ClinicalInterpretationMiscChoices=character(0), ClinicalContext=character(0),
-                       DDX41Pathogenicity=character(0), DDX41Type=character(0))
+                       ClinicalInterpretationDDX41=character(0), ClinicalInterpretationMiscChoices=character(0), DDX41Pathogenicity=character(0), DDX41Type=character(0))
   }
 
   return (data)
@@ -621,7 +620,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
 #' @export
 saveSampleInfo <- function(con_rb, data)
 {
-  sample_data <- data[, c("LabID", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel","ClinicalContext")]
+  sample_data <- data[, c("LabID", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel", "ClinicalContext")]
   colnames(sample_data) <- c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel","InitialClinicalContextReport")
   DBI::dbWriteTable(con_rb, "Sample", sample_data, row.names=F, append=T)
 }
@@ -675,7 +674,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
   }
 
   #Add new reports
-  report_data <- report_DB_data[, c("SampleID", "Template", "Type", "Name", "Status", "ResultsSummary", "ClinicalInterpretation", "ClinicalContextReport", "AuthorisedBy", "ReportedBy",
+  report_data <- report_DB_data[, c("SampleID", "Template", "Type", "Name", "Status", "ResultsSummary", "ClinicalInterpretation", "ClinicalContextReport", "ClinicalContext", "AuthorisedBy", "ReportedBy",
                                     "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "FLT3ITDAnalysis", "DDX41GermlineVarAnalysis")]
   DBI::dbWriteTable(con_rb, "Report", report_data, row.names=F, append=T)
   #Get sample IDs
@@ -691,7 +690,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
   #Add new ReportBuilderInfo
   report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc", "ClinicalInterpretationOther",
-                                                "ClinicalContext", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
+                                                , "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
                                                 "ClinicalInterpretationDisease", "ClinicalInterpretationDDX41", "ClinicalInterpretationMiscChoices", "DDX41Pathogenicity", "DDX41Type")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
 }
