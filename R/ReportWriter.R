@@ -828,7 +828,7 @@ generateReportTemplate <- function(reportInfo)
   #Add clinical context to negative and variant existing reports
   if (reportInfo$report_type != "FAIL")
   {
-    if (reportInfo$clinical_context_report != " ")
+    if (reportInfo$clinical_context_report != "")
     {
       file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
       report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
