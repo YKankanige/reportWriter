@@ -232,23 +232,23 @@ saveReport <- function(con_rb, reportInfo)
   if (!is.null(reportInfo$db_sample_id))
   {
     sample_id <- reportInfo$db_sample_id
-    query <- paste0("UPDATE Sample SET  Specimen='", reportInfo$specimen_type, "',
-                                    ClinicalIndication='", reportInfo$clinical_indication, "',
-                                    CorrelativeMorphology='", reportInfo$correlative_morphology, "',
-                                    SpecimenDetails='", reportInfo$specimen_details, "'
-                                    WHERE SampleID = '", sample_id, "';")
+    query <- paste0('UPDATE Sample SET  Specimen="', reportInfo$specimen_type, '",
+                                    ClinicalIndication="', reportInfo$clinical_indication, '",
+                                    CorrelativeMorphology="', reportInfo$correlative_morphology, '",
+                                    SpecimenDetails="', reportInfo$specimen_details, '"
+                                    WHERE SampleID ="', sample_id, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
   }
   else
   {
     #Insert sample
-    query <- paste0("INSERT INTO Sample SET SampleName='", reportInfo$sample_accession, "',
-                                          Seqrun='", reportInfo$seqrun, "',
-                                          Specimen='", reportInfo$specimen_type, "',
-                                          ClinicalIndication='", reportInfo$clinical_indication, "',
-                                          CorrelativeMorphology='", reportInfo$correlative_morphology, "',
-                                          SpecimenDetails='", reportInfo$specimen_details, "';")
+    query <- paste0('INSERT INTO Sample SET SampleName="', reportInfo$sample_accession, '",
+                                          Seqrun="', reportInfo$seqrun, '",
+                                          Specimen="', reportInfo$specimen_type, '",
+                                          ClinicalIndication="', reportInfo$clinical_indication, '",
+                                          CorrelativeMorphology="', reportInfo$correlative_morphology, '",
+                                          SpecimenDetails="', reportInfo$specimen_details, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
@@ -271,23 +271,23 @@ saveReport <- function(con_rb, reportInfo)
   if (reportInfo$new_report && reportInfo$report_create) #New report but can be a replace
   {
     #Insert Report
-    query <- paste0("INSERT INTO Report SET SampleID='", sample_id, "',
-                                          Template='", reportInfo$report_template, "',
-                                          Type='", reportInfo$report_type, "',
-                                          Status='", reportInfo$report_status, "',
-                                          Name='", reportInfo$report_name, "',
-                                          ResultsSummary='", results_summary, "',
-                                          ClinicalInterpretation='", clinical_interpretation, "',
-                                          ClinicalContextReport='", reportInfo$clinical_context_report, "',
-                                          ClinicalContext='", reportInfo$clinical_context, "',
-                                          FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
-                                          DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
-                                          AuthorisedBy='", reportInfo$authorised_by, "',
-                                          ReportedBy='", reportInfo$reported_by, "',
-                                          LastModifiedBy='", reportInfo$session_user, "',
-                                          CreatedBy='", reportInfo$session_user, "',
-                                          CreatedDate='", Sys.time(), "',
-                                          LastModifiedDate='", Sys.time(), "';")
+    query <- paste0('INSERT INTO Report SET SampleID="', sample_id, '",
+                                          Template="', reportInfo$report_template, '",
+                                          Type="', reportInfo$report_type, '",
+                                          Status="', reportInfo$report_status, '",
+                                          Name="', reportInfo$report_name, '",
+                                          ResultsSummary="', results_summary, '",
+                                          ClinicalInterpretation="', clinical_interpretation, '",
+                                          ClinicalContextReport="', reportInfo$clinical_context_report, '",
+                                          ClinicalContext="', reportInfo$clinical_context, '",
+                                          FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
+                                          DDX41GermlineVarAnalysis="', reportInfo$ddx41_variant_analysis, '",
+                                          AuthorisedBy="', reportInfo$authorised_by, '",
+                                          ReportedBy="', reportInfo$reported_by, '",
+                                          LastModifiedBy="', reportInfo$session_user, '",
+                                          CreatedBy="', reportInfo$session_user, '",
+                                          CreatedDate="', Sys.time(), '",
+                                          LastModifiedDate="', Sys.time(), '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
@@ -295,21 +295,21 @@ saveReport <- function(con_rb, reportInfo)
     report_id <- res$`LAST_INSERT_ID()`
 
     #Insert reportInfo
-    query <- paste0("INSERT INTO ReportBuilderInfo SET ReportID='", report_id, "',
-                                          ResultsSummaryDesc='", reportInfo$results_summary_desc, "',
-                                          ResultsSummaryFLT3='", reportInfo$results_summary_flt3, "',
-                                          ResultsSummaryQual='", reportInfo$results_summary_qual, "',
-                                          ResultsSummaryVarDesc='", reportInfo$results_summary_var, "',
-                                          ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
-                                          ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
-                                          ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
-                                          ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
-                                          ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
-                                          ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
-                                          ClinicalInterpretationDDX41='", reportInfo$clinical_interpretation_ddx41, "',
-                                          ClinicalInterpretationMiscChoices='", reportInfo$clinical_interpretation_misc_choices, "',
-                                          DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
-                                          DDX41Type='", reportInfo$ddx41_type, "';")
+    query <- paste0('INSERT INTO ReportBuilderInfo SET ReportID="', report_id, '",
+                                          ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
+                                          ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
+                                          ResultsSummaryQual="', reportInfo$results_summary_qual, '",
+                                          ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
+                                          ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
+                                          ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
+                                          ClinicalInterpretationVarDesc="', reportInfo$clinical_interpretation_txt_var, '",
+                                          ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
+                                          ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
+                                          ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
+                                          ClinicalInterpretationDDX41="', reportInfo$clinical_interpretation_ddx41, '",
+                                          ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
+                                          DDX41Pathogenicity="', reportInfo$ddx41_pathogenicity, '",
+                                          DDX41Type="', reportInfo$ddx41_type, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
@@ -336,40 +336,40 @@ saveReport <- function(con_rb, reportInfo)
   else #create and replace or modify
   {
     #Insert Report
-    query <- paste0("UPDATE Report SET Template='", reportInfo$report_template, "',
-                                      Type='", reportInfo$report_type, "',
-                                      Status='", reportInfo$report_status, "',
-                                      Name='", reportInfo$report_name, "',
-                                      ResultsSummary='", results_summary, "',
-                                      ClinicalInterpretation='", clinical_interpretation, "',
-                                      ClinicalContextReport='", reportInfo$clinical_context_report, "',
-                                      ClinicalContext='", reportInfo$clinical_context, "',
-                                      FLT3ITDAnalysis='", reportInfo$flt3_itd, "',
-                                      DDX41GermlineVarAnalysis='", reportInfo$ddx41_variant_analysis, "',
-                                      AuthorisedBy='", reportInfo$authorised_by, "',
-                                      ReportedBy='", reportInfo$reported_by, "',
-                                      LastModifiedBy='", reportInfo$session_user, "',
-                                      LastModifiedDate='", Sys.time(), "'
-                                      WHERE ReportID = '", reportInfo$db_report_id, "';")
+    query <- paste0('UPDATE Report SET Template="', reportInfo$report_template, '",
+                                      Type="', reportInfo$report_type, '",
+                                      Status="', reportInfo$report_status, '",
+                                      Name="', reportInfo$report_name, '",
+                                      ResultsSummary="', results_summary, '",
+                                      ClinicalInterpretation="', clinical_interpretation, '",
+                                      ClinicalContextReport="', reportInfo$clinical_context_report, '",
+                                      ClinicalContext="', reportInfo$clinical_context, '",
+                                      FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
+                                      DDX41GermlineVarAnalysis="', reportInfo$ddx41_variant_analysis, '",
+                                      AuthorisedBy="', reportInfo$authorised_by, '",
+                                      ReportedBy="', reportInfo$reported_by, '",
+                                      LastModifiedBy="', reportInfo$session_user, '",
+                                      LastModifiedDate="', Sys.time(), '"
+                                      WHERE ReportID = "', reportInfo$db_report_id, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
 
     #Insert reportInfo
-    query <- paste0("UPDATE ReportBuilderInfo SET ResultsSummaryDesc='", reportInfo$results_summary_desc, "',
-                                        ResultsSummaryFLT3='", reportInfo$results_summary_flt3, "',
-                                        ResultsSummaryQual='", reportInfo$results_summary_qual, "',
-                                        ResultsSummaryVarDesc='", reportInfo$results_summary_var, "',
-                                        ClinicalInterpretationDesc='", reportInfo$clinical_interpretation_txt, "',
-                                        ClinicalInterpretationOther='", reportInfo$clinical_interpretation_sel, "',
-                                        ClinicalInterpretationVarDesc='", reportInfo$clinical_interpretation_txt_var, "',
-                                        ClinicalInterpretationVar='", reportInfo$clinical_interpretation_var, "',
-                                        ClinicalInterpretationSpecimen='", reportInfo$clinical_interpretation_specimen, "',
-                                        ClinicalInterpretationDisease='", reportInfo$clinical_interpretation_disease, "',
-                                        ClinicalInterpretationDDX41='", reportInfo$clinical_interpretation_ddx41, "',
-                                        ClinicalInterpretationMiscChoices='", reportInfo$clinical_interpretation_misc_choices, "',
-                                        DDX41Pathogenicity='", reportInfo$ddx41_pathogenicity, "',
-                                        DDX41Type='", reportInfo$ddx41_type, "'
-                                        WHERE ReportBuilderInfoID = '", reportInfo$db_report_builder_info_id, "';")
+    query <- paste0('UPDATE ReportBuilderInfo SET ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
+                                        ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
+                                        ResultsSummaryQual="', reportInfo$results_summary_qual, '",
+                                        ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
+                                        ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
+                                        ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
+                                        ClinicalInterpretationVarDesc="', reportInfo$clinical_interpretation_txt_var, '",
+                                        ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
+                                        ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
+                                        ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
+                                        ClinicalInterpretationDDX41="', reportInfo$clinical_interpretation_ddx41, '",
+                                        ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
+                                        DDX41Pathogenicity="', reportInfo$ddx41_pathogenicity, '",
+                                        DDX41Type="', reportInfo$ddx41_type, '"
+                                        WHERE ReportBuilderInfoID ="', reportInfo$db_report_builder_info_id, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
 
@@ -401,12 +401,12 @@ saveReport <- function(con_rb, reportInfo)
       for(index_modified in indexes_modified)
       {
         record <- changedDiff[index_modified, ]
-        query <- paste0("UPDATE ReportVariant SET Variant='", record$Variant, "',
-                                            Gene='", record$Gene, "',
-                                            VRF='", record$VRF, "',
-                                            AssumedOrigin='", record$AssumedOrigin, "',
-                                            ClinicalSignificance='", record$ClinicalSignificance, "'
-                                            WHERE ReportVariantID = '", record$ReportVariantID, "';")
+        query <- paste0('UPDATE ReportVariant SET Variant="', record$Variant, '",
+                                            Gene="', record$Gene, '",
+                                            VRF="', record$VRF, '",
+                                            AssumedOrigin="', record$AssumedOrigin, '",
+                                            ClinicalSignificance="', record$ClinicalSignificance, '"
+                                            WHERE ReportVariantID = "', record$ReportVariantID, '";')
         res <- DBI::dbSendQuery (con_rb, query)
         DBI::dbClearResult(res)
       }
@@ -418,12 +418,12 @@ saveReport <- function(con_rb, reportInfo)
       for(i in 1:nrow(records_inserted))
       {
         record <- records_inserted[i, ]
-        query <- paste0("INSERT ReportVariant SET ReportID='", reportInfo$db_report_id, "',
-                                            Variant='", record$Variant, "',
-                                            Gene='", record$Gene, "',
-                                            VRF='", record$VRF, "',
-                                            AssumedOrigin='", record$AssumedOrigin, "',
-                                            ClinicalSignificance='", record$ClinicalSignificance, "';")
+        query <- paste0('INSERT ReportVariant SET ReportID="', reportInfo$db_report_id, '",
+                                            Variant="', record$Variant, '",
+                                            Gene="', record$Gene, '",
+                                            VRF="', record$VRF, '",
+                                            AssumedOrigin="', record$AssumedOrigin, '",
+                                            ClinicalSignificance="', record$ClinicalSignificance, '";')
 
         res <- DBI::dbSendQuery (con_rb, query)
         DBI::dbClearResult(res)
@@ -645,11 +645,11 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
     for (i in 1:nrow(sample_data_existing))
     {
-      query <- paste0("UPDATE Sample SET  Specimen='", sample_data_existing[i, ]$Specimen, "',
-                                    ClinicalIndication='", sample_data_existing[i, ]$ClinicalIndication, "',
-                                    CorrelativeMorphology='", sample_data_existing[i, ]$CorrelativeMorphology, "',
-                                    SpecimenDetails='", sample_data_existing[i, ]$SpecimenDetails, "'
-                                    WHERE SampleID = '", sample_data_existing[i, ]$SampleID, "';")
+      query <- paste0('UPDATE Sample SET  Specimen="', sample_data_existing[i, ]$Specimen, '",
+                                    ClinicalIndication="', sample_data_existing[i, ]$ClinicalIndication, fixed=T), '"
+                                    CorrelativeMorphology="', sample_data_existing[i, ]$CorrelativeMorphology, '",
+                                    SpecimenDetails="', sample_data_existing[i, ]$SpecimenDetails, '"
+                                    WHERE SampleID = "', sample_data_existing[i, ]$SampleID, '";')
       res <- DBI::dbSendQuery (con_rb, query)
       DBI::dbClearResult(res)
     }
