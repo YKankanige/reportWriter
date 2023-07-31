@@ -646,7 +646,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
     for (i in 1:nrow(sample_data_existing))
     {
       query <- paste0('UPDATE Sample SET  Specimen="', sample_data_existing[i, ]$Specimen, '",
-                                    ClinicalIndication="', sample_data_existing[i, ]$ClinicalIndication, fixed=T), '",
+                                    ClinicalIndication="', sample_data_existing[i, ]$ClinicalIndication, '",
                                     CorrelativeMorphology="', sample_data_existing[i, ]$CorrelativeMorphology, '",
                                     SpecimenDetails="', sample_data_existing[i, ]$SpecimenDetails, '"
                                     WHERE SampleID = "', sample_data_existing[i, ]$SampleID, '";')
