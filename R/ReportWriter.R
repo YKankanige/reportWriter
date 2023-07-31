@@ -620,8 +620,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
 #' @export
 saveSampleInfo <- function(con_rb, data)
 {
-  sample_data <- data[, c("LabID", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel", "ClinicalContext")]
-  colnames(sample_data) <- c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel","InitialClinicalContextReport")
+  sample_data <- data[, c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel", "InitialClinicalContextReport")]
   DBI::dbWriteTable(con_rb, "Sample", sample_data, row.names=F, append=T)
 }
 
