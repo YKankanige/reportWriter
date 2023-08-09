@@ -9,22 +9,26 @@ library(yaml)
 ################################################################################################################
 # Load config files and define other variables to R folder, run only when they have changed
 ################################################################################################################
-#report_writer_config <- yaml::read_yaml(system.file("extdata", "report_writer_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
+# report_writer_config <- yaml::read_yaml(system.file("extdata", "report_writer_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
+#
+# # Gene coverage table info
+# coverage_data <- read.table(system.file("extdata", "coverage_table_all.csv", package = "reportWriter", mustWork=T), sep=",", stringsAsFactors=F, header=T)
+# colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
+#
+# #Gene names of different panels
+# all_haem_no_ddx41 <- coverage_data$Gene
+# all_haem_no_ddx41 <- all_haem_no_ddx41[-which(all_haem_no_ddx41 == "DDX41")]
+# mpn_dx <- c("ASXL1", "CALR", "CBL", "CSF3R", "ETNK1", "EZH2", "IDH1", "IDH2", "JAK2", "KIT", "KRAS", "MPL", "NRAS", "RUNX1", "SETBP1", "SF3B1", "SH2B3",
+#             "SRSF2", "TET2", "TP53", "U2AF1", "ZRSR2")
+# sg_tp53 <- "TP53"
+# usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, internal=T, overwrite=T)
+#
+# report_config <- read_yaml(system.file("extdata", "report_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
+# usethis::use_data(report_config, internal=F, overwrite=T)
 
-## Gene coverage table info
-#coverage_data <- read.table(system.file("extdata", "coverage_table_all.csv", package = "reportWriter", mustWork=T), sep=",", stringsAsFactors=F, header=T)
-#colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
-
-##Gene names of different panels
-#all_haem_no_ddx41 <- coverage_data$Gene
-#all_haem_no_ddx41 <- all_haem_no_ddx41[-which(all_haem_no_ddx41 == "DDX41")]
-#mpn_dx <- c("ASXL1", "CALR", "CBL", "CSF3R", "ETNK1", "EZH2", "IDH1", "IDH2", "JAK2", "KIT", "KRAS", "MPL", "NRAS", "RUNX1", "SETBP1", "SF3B1", "SH2B3",
-#            "SRSF2", "TET2", "TP53", "U2AF1", "ZRSR2")
-#sg_tp53 <- "TP53"
-#usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, internal=T, overwrite=T)
-
-#report_config <- read_yaml(system.file("extdata", "report_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
-#usethis::use_data(report_config, internal=F, overwrite=T)
+#build package after changes
+#Run the above
+#devtools::document() to update docs
 
 ################################################################################################################
 # Helper functions for fetching and saving data
