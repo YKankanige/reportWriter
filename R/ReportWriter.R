@@ -23,9 +23,6 @@ library(yaml)
 # sg_tp53 <- "TP53"
 # usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, internal=T, overwrite=T)
 #
-# report_config <- read_yaml(system.file("extdata", "report_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
-# usethis::use_data(report_config, internal=F, overwrite=T)
-
 #build package after changes
 #Run the above
 #devtools::document() to update docs
