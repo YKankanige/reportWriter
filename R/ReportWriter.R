@@ -485,7 +485,7 @@ loadVariants <- function(con_pathOS, samples, seqrun)
   query <- paste0("SELECT seq_variant.gene AS Gene, seq_variant.chr AS Chr, seq_variant.hgvsc AS Hgvsc, seq_variant.hgvsg AS Hgvsg,
                     seq_variant.hgvsp AS Hgvsp, seq_variant.pos AS Pos, seq_variant.var_freq AS VarFreq, seq_variant.var_panel_pct AS VarPanelPct,
                     filter_flag AS FilterFlag, seq_variant.var_samples_seen_in_panel AS VarSamplesSeenInPanel, seq_variant.sample_name AS SampleAccession,
-                    cur_variant.overall_class AS ClinicalSignificance from seq_variant
+                    cur_variant.overall_class AS ClinicalSignificance, cur_variant.pm_class AS ACMGClassification FROM seq_variant
                     INNER JOIN seq_sample ON seq_sample.id = seq_variant.seq_sample_id
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
                     LEFT OUTER JOIN cur_variant ON seq_sample.clin_context_id = cur_variant.clin_context_id AND cur_variant.hgvsg = seq_variant.hgvsg
