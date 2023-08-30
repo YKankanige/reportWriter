@@ -2,6 +2,7 @@
 
 export(generateReportTemplate)
 export(getVariantInfo)
+export(loadAllReports)
 export(loadPathOSData)
 export(loadReportBuilderData)
 export(loadReportBuilderInfo)

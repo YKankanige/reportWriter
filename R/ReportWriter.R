@@ -696,6 +696,28 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 }
 
 
+#' Function to load all reports from report builder database
+#' Used by Report Browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return All reports
+#'
+#' @export
+loadAllReports <- function(con_rb)
+{
+  query <- paste0("SELECT s.SampleName, s.Seqrun, s.Specimen, s.ClinicalIndication, s.CorrelativeMorphology, s.SpecimenDetails,
+                  r.Template, r.Type, r.Name, r.Status, r.ResultsSummary, r.ClinicalInterpretation, r.ClinicalContext,
+                  r.AuthorisedBy, r.ReportedBy, COUNT(DISTINCT rv.ReportVariantID) AS NmReportedVariants FROM Report r
+                  LEFT JOIN Sample s ON s.SampleID = r.SampleID
+                  LEFT JOIN ReportVariant rv ON rv.ReportID = r.ReportID
+                  GROUP BY r.ReportID;")
+  report_data <- dbGetQuery(con_rb, query)
+
+  return (report_data)
+}
+
+
 #' Function to generate report template using list object reportInfo
 #'
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
