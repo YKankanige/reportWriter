@@ -708,7 +708,7 @@ loadAllReports <- function(con_rb)
 {
   query <- paste0("SELECT s.SampleName, s.Seqrun, s.Specimen, s.ClinicalIndication, s.CorrelativeMorphology, s.SpecimenDetails,
                   r.Template, r.Type, r.Name, r.Status, r.ResultsSummary, r.ClinicalInterpretation, r.ClinicalContext,
-                  r.AuthorisedBy, r.ReportedBy, COUNT(DISTINCT rv.ReportVariantID) AS NmReportedVariants FROM Report r
+                  r.AuthorisedBy, r.ReportedBy, COUNT(DISTINCT rv.ReportVariantID) AS NumReportedVariants FROM Report r
                   LEFT JOIN Sample s ON s.SampleID = r.SampleID
                   LEFT JOIN ReportVariant rv ON rv.ReportID = r.ReportID
                   GROUP BY r.ReportID;")
