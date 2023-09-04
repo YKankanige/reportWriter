@@ -18,6 +18,7 @@ assumed_origin_choices:
   - "Uncertain"
   - "Germline"
 vrf_na: "N/A"
+flt3_Itd_Delete: "DELETE SECTION, NOT APPLICABLE"
 
 #----------------------------------------------------------
 # Report template variables

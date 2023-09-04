@@ -814,7 +814,13 @@ generateReportTemplate <- function(reportInfo)
   {
     if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
     {
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
+      if (identical(reportInfo$flt3_itd, report_writer_config$flt3_Itd_Delete))
+      {
+        report_template <- officer::cursor_reach(report_template, report_writer_config$Flt3_Itd)
+        report_template <- officer::body_remove(report_template)
+      }
+      else
+        report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
     }
 
     if (reportInfo$report_template == "AHD_DDX41")
