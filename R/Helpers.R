@@ -211,7 +211,8 @@ variantsTableThemed <- function(dataframe, clinical_significance_header) {
   else
   {
     index_other <- setdiff(c(1:nrow(dataframe)), index_germline)
-    table <- flextable::bg(table, bg="#CFCCD6", part="body", i=index_other)
+    if (length(index_other) != 0)
+      table <- flextable::bg(table, bg="#CFCCD6", part="body", i=index_other)
     table <- flextable::bg(table, bg="#E8E7EC", part="body", i=index_germline)
 
     if (nrow(dataframe) != 1)
