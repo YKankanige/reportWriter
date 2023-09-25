@@ -317,6 +317,9 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
     sample_coverage_data <- read.table(file_name, stringsAsFactors=F, header=T, sep="\t")
     colnames(sample_coverage_data) <- sub("^X", "", colnames(sample_coverage_data))
 
+    #PLS CHECK, QUICK FIX FOR MFSD11;SRSF2
+    sample_coverage_data$Gene[sample_coverage_data$Gene == "MFSD11;SRSF2"] <- "SRSF2"
+
     sample_coverage_data[, "500x"] <- sample_coverage_data[, "500x"] + 0.00000001 #Add a very small number to round up 0.05, 0.15 etc in MS excel way
     sample_coverage_data[, "500x"] <- round(sample_coverage_data[, "500x"], 1)
     sample_coverage_data[, "500x"] <- as.character(sample_coverage_data[, "500x"]) #Turn coverage also to character
