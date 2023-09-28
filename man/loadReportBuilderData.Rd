@@ -6,12 +6,14 @@
 If there is a report existing, only load basic report information if there are multiple reports per sample
 Used by Report Builder}
 \usage{
-loadReportBuilderData(con_rb, reportInfo)
+loadReportBuilderData(con_rb, reportInfo, report_config)
 }
 \arguments{
 \item{con_rb}{Report builder database connection}
 
 \item{reportInfo}{Named list from report builder/automatic generation tools with sample and report information}
+
+\item{report_config}{report config variables}
 }
 \value{
 reportInfo

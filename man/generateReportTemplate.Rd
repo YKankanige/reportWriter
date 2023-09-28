@@ -4,10 +4,14 @@
 \alias{generateReportTemplate}
 \title{Function to generate report template using list object reportInfo}
 \usage{
-generateReportTemplate(reportInfo)
+generateReportTemplate(reportInfo, report_config, coverage_data)
 }
 \arguments{
 \item{reportInfo}{Named list from report builder/automatic generation tools with sample and report information}
+
+\item{report_config}{Report config variables}
+
+\item{coverage_data}{Report coverage table definitions to generate the coverage table}
 }
 \value{
 report_template which is a word document template

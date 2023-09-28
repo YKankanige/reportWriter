@@ -157,7 +157,7 @@ coverageTableThemedFail <- function(dataframe) {
 # ---------------------------------------------------------------------------------
 # Reported Variants table style
 # ---------------------------------------------------------------------------------
-variantsTableThemed <- function(dataframe, clinical_significance_header) {
+variantsTableThemed <- function(dataframe, clinical_significance_header, report_writer_config) {
 
   dataframe <- dataframe[, c("AssumedOrigin", "Gene", "Variant", "VRF", "ClinicalSignificance")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
@@ -258,7 +258,7 @@ getSampleInfo <- function(con_pathOS, seqrun, sample_accession)
 # ---------------------------------------------------------------------------------
 # Load report information to reportInfo object from the data returned from DB query
 # ---------------------------------------------------------------------------------
-loadReportInformation <- function(con_rb, report_data, reportInfo)
+loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer_config)
 {
   reportInfo$report_template <- report_data$Template
   reportInfo$report_type <- report_data$Type
@@ -334,12 +334,12 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
 # ---------------------------------------------------------------------------------
 # Generate sample gene coverage table (depending on the report type)
 # ---------------------------------------------------------------------------------
-returnCoverageTable <- function(sample_coverage_data, report_type)
+returnCoverageTable <- function(sample_coverage_data, report_type, report_config, coverage_data)
 {
   if (report_type %in% c("AHD", "AHD_DDX41"))
   {
 
-    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% coverage_data$Gene)
+    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", "500x")]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
@@ -355,7 +355,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type)
   }
   else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% all_haem_no_ddx41)
+    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", "500x")]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
@@ -372,7 +372,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type)
   }
   else if (report_type %in% c("MDX", "MDX_MPN"))
   {
-    sample_coverage_sub_mpn_dx <- subset(sample_coverage_data, sample_coverage_data$Gene %in% mpn_dx)
+    sample_coverage_sub_mpn_dx <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$MPN_genes)
     sample_coverage_sub_mpn_dx <- base::merge(sample_coverage_sub_mpn_dx, coverage_data)
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[, c("Gene", "Transcript", "Targeted exons", "500x")]
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[order(sample_coverage_sub_mpn_dx$Gene), ]
@@ -389,7 +389,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type)
   }
   else if (report_type %in% c("SG_TP53", "SG_TP53_CLL"))
   {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% sg_tp53)
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_TP53_genes)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
     sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
     colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
@@ -403,11 +403,11 @@ returnCoverageTable <- function(sample_coverage_data, report_type)
 # ---------------------------------------------------------------------------------
 # Generate panel coverage info for failed reports
 # ---------------------------------------------------------------------------------
-returnCoverageTableFail <- function(report_type)
+returnCoverageTableFail <- function(report_type, report_config, coverage_data)
 {
   if (report_type %in% c("AHD", "AHD_DDX41"))
   {
-    sample_coverage_sub_all <- coverage_data
+    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -420,7 +420,7 @@ returnCoverageTableFail <- function(report_type)
   }
   else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% all_haem_no_ddx41)
+    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
     sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -434,7 +434,7 @@ returnCoverageTableFail <- function(report_type)
   }
   else if (report_type %in% c("MDX", "MDX_MPN"))
   {
-    sample_coverage_sub_mpn_dx <- subset(coverage_data, coverage_data$Gene %in% mpn_dx)
+    sample_coverage_sub_mpn_dx <- subset(coverage_data, coverage_data$Gene %in% report_config$MPN_genes)
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[order(sample_coverage_sub_mpn_dx$Gene), ]
 
     #Prepare data for display
@@ -448,7 +448,7 @@ returnCoverageTableFail <- function(report_type)
   }
   else if (report_type %in% c("SG_TP53", "SG_TP53_CLL"))
   {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% sg_tp53)
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_TP53_genes)
 
     return (sample_coverage_sub_sg)
   }
@@ -462,7 +462,7 @@ returnCoverageTableFail <- function(report_type)
 # ---------------------------------------------------------------------------------
 # Add clinical interpretation and results summary of negative reports to template
 # ---------------------------------------------------------------------------------
-negativeReportResultsSection <- function(report, reportInfo) {
+negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
   if (reportInfo$report_template != "AH_cfDNA")
   {
     if (reportInfo$clinical_interpretation_sel != " ")
@@ -493,7 +493,7 @@ negativeReportResultsSection <- function(report, reportInfo) {
 # ---------------------------------------------------------------------------------
 # Add clinical interpretation and results summary of variants reports to template
 # ---------------------------------------------------------------------------------
-variantsReportResultsSection <- function(report, reportInfo) {
+variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
   if (reportInfo$report_template == "AHD_DDX41") #This report has 4 clinical interpretation lines
   {

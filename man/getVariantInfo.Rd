@@ -5,7 +5,7 @@
 \title{Fetch variant info from pathos database
 Used by Report Builder}
 \usage{
-getVariantInfo(con_pathOS, seqrun, sample_accession)
+getVariantInfo(con_pathOS, seqrun, sample_accession, report_config)
 }
 \arguments{
 \item{con_pathOS}{PathOS DB connection}
@@ -13,6 +13,8 @@ getVariantInfo(con_pathOS, seqrun, sample_accession)
 \item{seqrun}{seqrun, character value}
 
 \item{sample_accession}{sample accession, character value}
+
+\item{report_config}{report config variables}
 }
 \value{
 dataframe with variant information

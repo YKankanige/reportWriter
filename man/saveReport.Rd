@@ -5,12 +5,14 @@
 \title{Save report to Report builder database, also fetching report id etc when saved if this is a new report
 Used by Report Builder}
 \usage{
-saveReport(con_rb, reportInfo)
+saveReport(con_rb, reportInfo, report_config)
 }
 \arguments{
 \item{con_rb}{Report builder database connection}
 
 \item{reportInfo}{Named list from report builder/automatic generation tools with sample and report information}
+
+\item{report_config}{report config variables}
 }
 \value{
 reportInfo

@@ -7,29 +7,168 @@ library(flextable)
 library(yaml)
 
 ################################################################################################################
-# Load config files and define other variables to R folder, run only when they have changed
-################################################################################################################
-# report_writer_config <- yaml::read_yaml(system.file("extdata", "report_writer_config.yml", package = "reportWriter", mustWork=T), fileEncoding="UTF-8")
-#
-# # Gene coverage table info
-# coverage_data <- read.table(system.file("extdata", "coverage_table_all.csv", package = "reportWriter", mustWork=T), sep=",", stringsAsFactors=F, header=T)
-# colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
-#
-# #Gene names of different panels
-# all_haem_no_ddx41 <- coverage_data$Gene
-# all_haem_no_ddx41 <- all_haem_no_ddx41[-which(all_haem_no_ddx41 == "DDX41")]
-# mpn_dx <- c("ASXL1", "CALR", "CBL", "CSF3R", "ETNK1", "EZH2", "IDH1", "IDH2", "JAK2", "KIT", "KRAS", "MPL", "NRAS", "RUNX1", "SETBP1", "SF3B1", "SH2B3",
-#             "SRSF2", "TET2", "TP53", "U2AF1", "ZRSR2")
-# sg_tp53 <- "TP53"
-# usethis::use_data(report_writer_config, coverage_data, all_haem_no_ddx41, mpn_dx, sg_tp53, internal=T, overwrite=T)
-#
-#build package after changes
-#Run the above
-#devtools::document() to update docs
-
-################################################################################################################
 # Helper functions for fetching and saving data
 ################################################################################################################
+
+#' Load report config information
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return report_config
+#'
+#' @export
+loadReportConfig <- function(con_rb)
+{
+  query <- "SELECT * FROM DefReportBuilderVar;"
+  data_var <- DBI::dbGetQuery(con_rb, query)
+  data_var <- data_var[, -1]
+
+  #Create the named list, add named variables
+  var_names <- unique(data_var$Variable)
+  report_config <- list()
+  for(var_name in var_names)
+  {
+    sub <- subset(data_var, data_var$Variable == var_name)
+    report_config[[var_name]] <- sub$Value
+  }
+
+  query <- "SELECT * FROM DefReportBuilderVarMap;"
+  data_map <- DBI::dbGetQuery(con_rb, query)
+  data_map <- data_map[, -1]
+
+  #Create the named list, add named lists
+  map_names <- unique(data_map$Variable)
+  for(map_name in map_names)
+  {
+    df_sub <- subset(data_map, data_map$Variable == map_name)
+    sub_list <- list()
+    var_names <- df_sub$Value
+    for(var_name in var_names)
+    {
+      sub <- subset(df_sub, df_sub$Value == var_name)
+      sub_list[[var_name]] <- sub$MappedValue
+    }
+    report_config[[map_name]] <- sub_list
+  }
+
+  return (report_config)
+}
+
+
+#' Load coverage file data
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return coverage_data
+#'
+#' @export
+loadCoverageData <- function(con_rb)
+{
+  query <- "SELECT * FROM DefCoverage;"
+  coverage_data <- DBI::dbGetQuery(con_rb, query)
+  coverage_data <- coverage_data[, -1]
+  colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
+
+  return (coverage_data)
+}
+
+#' Load clinical context mapping data
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return clinical_context_mapping
+#'
+#' @export
+loadClinicalContextMapping <- function(con_rb)
+{
+  query <- "SELECT * FROM DefClinicalContextMapping;"
+  df_mapping <- DBI::dbGetQuery(con_rb, query)
+  df_mapping <- df_mapping[, -1]
+
+  query <- "SELECT * FROM DefClinicalSigLookup;"
+  df_lookup <- DBI::dbGetQuery(con_rb, query)
+  df_lookup <- df_lookup[, -1]
+
+  df_mapping["Lookup"] <- NA
+  rownames(df_mapping) <- df_mapping$Header
+  clinical_context_mapping <- apply(df_mapping, 1, as.list)
+
+  clinical_context_mapping <- lapply(clinical_context_mapping, function(item)
+  {
+    lookup_name <- item$LookupName
+    data <- subset(df_lookup, df_lookup$LookupName == lookup_name)
+    data$GeneName <- trimws(data$GeneName, which="both")
+    data$D <- as.logical(data$D)
+    data$P <- as.logical(data$P)
+    data$DT <- as.logical(data$DT)
+    data$DR <- as.logical(data$DR)
+    data$MRD <- as.logical(data$MRD)
+
+    item$Lookup <- data
+
+    (item)
+  })
+
+  return (clinical_context_mapping)
+}
+
+
+#' Load SNP backbone data
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return snp_backbone
+#'
+#' @export
+loadSNPBackbone <- function(con_rb)
+{
+  query <- "SELECT * FROM DefSNPBackbone;"
+  snp_backbone <- DBI::dbGetQuery(con_rb, query)
+  snp_backbone <- snp_backbone[, -1]
+
+  return (snp_backbone)
+}
+
+
+#' Load Specimen lookup data for mapping Auslab data to specimen and specimen details
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return specimen_lookup
+#'
+#' @export
+loadSpecimenLookup <- function(con_rb)
+{
+  query <- "SELECT * FROM DefSpecimenLookup;"
+  specimen_lookup <- DBI::dbGetQuery(con_rb, query)
+  specimen_lookup <- specimen_lookup[, -1]
+
+  return (specimen_lookup)
+}
+
+
+#' Load user and display name mapping
+#' Used by Report Builder, nvd identifier and report browser
+#'
+#' @param con_rb Report builder database connection
+#'
+#' @return user_mapping
+#'
+#' @export
+loadUserMapping <- function(con_rb)
+{
+  query <- "SELECT * FROM DefUserMapping;"
+  user_mapping <- DBI::dbGetQuery(con_rb, query)
+  user_mapping <- user_mapping[, -1]
+
+  return (user_mapping)
+}
+
 
 #' Load sample information to reportInfo object. This is the main reactive object used
 #' by the report builder app which is also a named list
@@ -98,11 +237,12 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
 #' @param con_pathOS PathOS DB connection
 #' @param seqrun seqrun, character value
 #' @param sample_accession sample accession, character value
+#' @param report_config report config variables
 #'
 #' @return dataframe with variant information
 #'
 #' @export
-getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
+getVariantInfo <- function(con_pathOS, seqrun, sample_accession, report_config)
 {
   seqrun <- trimws(seqrun, which="both")
   sample_accession <- trimws(sample_accession, which="both")
@@ -126,12 +266,12 @@ getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
 
   #preprocess variants
   data <- data[, c("gene", "hgvsc", "hgvsp", "var_freq")]
-  data$hgvsp[data$hgvsp == ""] <- report_writer_config$hgvsp_NA
+  data$hgvsp[data$hgvsp == ""] <- report_config$hgvsp_NA
   data$variant <-  paste0(str_extract(data$hgvsc, "c[.].*$"), " ", str_extract(data$hgvsp, "p[.].*$"))
   df <- data.frame(ReportVariantID=NA, ReportID=NA, AssumedOrigin=NA, Gene=data$gene, Variant=data$variant, VRF=data$var_freq, ClinicalSignificance=NA, stringsAsFactors=F)
   df <- df[order(df$VRF, decreasing=T), ]
   df["VRF"] <- round(as.numeric(df$VRF))
-  df["AssumedOrigin"] <- factor(df$AssumedOrigin, levels=report_writer_config$assumed_origin_choices)
+  df["AssumedOrigin"] <- factor(df$AssumedOrigin, levels=report_config$assumed_origin_choices)
 
   return (df)
 }
@@ -143,11 +283,12 @@ getVariantInfo <- function(con_pathOS, seqrun, sample_accession)
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#' @param report_config report config variables
 #'
 #' @return reportInfo
 #'
 #' @export
-loadReportBuilderData <- function(con_rb, reportInfo)
+loadReportBuilderData <- function(con_rb, reportInfo, report_config)
 {
   query <- paste0("SELECT * FROM Sample
                     WHERE Sample.SampleName = '", reportInfo$sample_accession, "' AND Seqrun = '", reportInfo$seqrun , "';")
@@ -187,7 +328,7 @@ loadReportBuilderData <- function(con_rb, reportInfo)
       reportInfo$db_report_id <- report_data$ReportID
       reportInfo$db_report_builder_info_id <- report_data$ReportBuilderInfoID
 
-      return (loadReportInformation(con_rb, report_data, reportInfo))
+      return (loadReportInformation(con_rb, report_data, reportInfo, report_config))
     }
   }
 
@@ -201,11 +342,12 @@ loadReportBuilderData <- function(con_rb, reportInfo)
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#' @param report_config report config variables
 #'
 #' @return reportInfo
 #'
 #' @export
-loadReportBuilderReport <- function(con_rb, reportInfo)
+loadReportBuilderReport <- function(con_rb, reportInfo, report_config)
 {
   #Check whether a report exists (sample info can exist without a report if loaded via NVD identifier)
   query <- paste0("SELECT * FROM Report
@@ -213,7 +355,7 @@ loadReportBuilderReport <- function(con_rb, reportInfo)
                   WHERE Report.ReportID = '", reportInfo$db_report_id, "';")
   report_data <- DBI::dbGetQuery(con_rb, query)
 
-  return (loadReportInformation(con_rb, report_data, reportInfo))
+  return (loadReportInformation(con_rb, report_data, reportInfo, report_config))
 }
 
 
@@ -222,11 +364,12 @@ loadReportBuilderReport <- function(con_rb, reportInfo)
 #'
 #' @param con_rb Report builder database connection
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#' @param report_config report config variables
 #'
 #' @return reportInfo
 #'
 #' @export
-saveReport <- function(con_rb, reportInfo)
+saveReport <- function(con_rb, reportInfo, report_config)
 {
   sample_id <- NA
   #Sample can already exist in the database
@@ -382,7 +525,7 @@ saveReport <- function(con_rb, reportInfo)
     existingVariants <- existingVariants[order(existingVariants$ReportVariantID, decreasing=F), ]
     existingVariants$VRF[existingVariants$VRF == "NA"] <- NA
     existingVariants["VRF"] <- round(as.numeric(existingVariants$VRF))
-    existingVariants["AssumedOrigin"] <- factor(existingVariants$AssumedOrigin, levels=report_writer_config$assumed_origin_choices)
+    existingVariants["AssumedOrigin"] <- factor(existingVariants$AssumedOrigin, levels=report_config$assumed_origin_choices)
 
     changedVariants <- reportInfo$variants
     if (is.null(changedVariants))
@@ -721,21 +864,23 @@ loadAllReports <- function(con_rb)
 #' Function to generate report template using list object reportInfo
 #'
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#' @param report_config Report config variables
+#' @param coverage_data Report coverage table definitions to generate the coverage table
 #'
 #' @return report_template which is a word document template
 #'
 #' @export
-generateReportTemplate <- function(reportInfo)
+generateReportTemplate <- function(reportInfo, report_config, coverage_data)
 {
   #generate the coverage table and format
   if (reportInfo$report_type != "FAIL")
   {
-    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template)
+    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, report_config, coverage_data)
     coverage_table <- coverageTableThemed(data_coverage)
   }
   else
   {
-    data_coverage <- returnCoverageTableFail(reportInfo$report_template)
+    data_coverage <- returnCoverageTableFail(reportInfo$report_template, report_config, coverage_data)
     coverage_table <- coverageTableThemedFail(data_coverage)
   }
 
@@ -762,22 +907,22 @@ generateReportTemplate <- function(reportInfo)
 
   #replace variable's in the template
   #Patient info header
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Dob,  reportInfo$dob)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Sex, reportInfo$gender)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ext_Ref, reportInfo$ext_ref)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Collected_Date,  reportInfo$collected_date)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Received_Date,  reportInfo$received_date)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen, reportInfo$specimen_type)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Requester, reportInfo$requester)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Referral_Lab, reportInfo$referral_lab)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Patient, reportInfo$patient_name)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Urn, reportInfo$urn)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Dob,  reportInfo$dob)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Lab_No, reportInfo$sample_accession)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Sex, reportInfo$gender)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Ext_Ref, reportInfo$ext_ref)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Collected_Date,  reportInfo$collected_date)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Received_Date,  reportInfo$received_date)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Specimen, reportInfo$specimen_type)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Requester, reportInfo$requester)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Referral_Lab, reportInfo$referral_lab)
 
   #Report area
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Specimen_Details, reportInfo$specimen_details)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Indication, reportInfo$clinical_indication)
-  report_template <- officer::body_replace_all_text(report_template, report_writer_config$Authorised_By, reportInfo$authorised_by)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Specimen_Details, reportInfo$specimen_details)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Indication, reportInfo$clinical_indication)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Authorised_By, reportInfo$authorised_by)
 
   #save "reported by" if new line exists there is two
   if (grepl("\n", reportInfo$reported_by))
@@ -785,28 +930,28 @@ generateReportTemplate <- function(reportInfo)
     index <- regexpr("\n", reportInfo$reported_by)
     reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
     reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportedby1)
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, reportedby2)
+    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By1, reportedby1)
+    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By2, reportedby2)
   }
   else
   {
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By1, reportInfo$reported_by)
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Reported_By2, "")
+    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By1, reportInfo$reported_by)
+    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By2, "")
   }
 
 
   if (reportInfo$report_type == "NEG")
   {
-    report_template <- negativeReportResultsSection(report_template, reportInfo)
+    report_template <- negativeReportResultsSection(report_template, reportInfo, report_config)
   }
   else if (reportInfo$report_type == "VAR")
   {
-    report_template <- variantsReportResultsSection(report_template, reportInfo)
+    report_template <- variantsReportResultsSection(report_template, reportInfo, report_config)
   }
 
   if (reportInfo$report_template != "AH_cfDNA")
   {
-    report_template <- officer::body_replace_all_text(report_template, report_writer_config$Correlative_Morphology, reportInfo$correlative_morphology)
+    report_template <- officer::body_replace_all_text(report_template, report_config$Correlative_Morphology, reportInfo$correlative_morphology)
   }
 
   #FLT3_ITD and DDX41 germline variant analysis in reports with variants
@@ -814,32 +959,32 @@ generateReportTemplate <- function(reportInfo)
   {
     if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
     {
-      if (identical(reportInfo$flt3_itd, report_writer_config$flt3_Itd_Delete))
+      if (identical(reportInfo$flt3_itd, report_config$flt3_Itd_Delete))
       {
-        report_template <- officer::cursor_reach(report_template, report_writer_config$Flt3_Itd)
+        report_template <- officer::cursor_reach(report_template, report_config$Flt3_Itd)
         report_template <- officer::body_remove(report_template)
       }
       else
-        report_template <- officer::body_replace_all_text(report_template, report_writer_config$Flt3_Itd, reportInfo$flt3_itd)
+        report_template <- officer::body_replace_all_text(report_template, report_config$Flt3_Itd, reportInfo$flt3_itd)
     }
 
     if (reportInfo$report_template == "AHD_DDX41")
     {
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
+      report_template <- officer::body_replace_all_text(report_template, report_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
     }
   }
 
   #footer
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Patient, reportInfo$patient_name, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Urn, reportInfo$urn, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Dob, reportInfo$dob, warn=F)
-  report_template <- officer::footers_replace_all_text(report_template, report_writer_config$Lab_No, reportInfo$sample_accession, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_config$Patient, reportInfo$patient_name, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_config$Urn, reportInfo$urn, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_config$Dob, reportInfo$dob, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_config$Lab_No, reportInfo$sample_accession, warn=F)
 
   #Add coverage table
   if (reportInfo$report_type != "FAIL")
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Coverage_table_text)
+    report_template <- officer::cursor_reach(report_template, report_config$Coverage_table_text)
   else
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Panel_table_text)
+    report_template <- officer::cursor_reach(report_template, report_config$Panel_table_text)
   #Align the table left in SG reports and center in others
   table_align <- "center"
   if (grepl("^SG_", reportInfo$report_template))
@@ -849,8 +994,8 @@ generateReportTemplate <- function(reportInfo)
   #Add variants table
   if (reportInfo$report_type == "VAR")
   {
-    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context)
-    report_template <- officer::cursor_reach(report_template, report_writer_config$Variants_table_text)
+    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context, report_config)
+    report_template <- officer::cursor_reach(report_template, report_config$Variants_table_text)
     report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
   }
 
@@ -860,15 +1005,15 @@ generateReportTemplate <- function(reportInfo)
     if (reportInfo$clinical_context_report != "")
     {
       file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
-      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
-      report_template <- officer::body_replace_all_text(report_template, report_writer_config$Clinical_Context, "")
+      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context)
+      report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Context, "")
       #report_template <- officer::body_add_break(report_template)
       report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T), pos="on")
     }
     else
     {
       #Clinical context not chosen
-      report_template <- officer::cursor_reach(report_template, report_writer_config$Clinical_Context)
+      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context)
       report_template <- officer::body_remove(report_template)
     }
   }

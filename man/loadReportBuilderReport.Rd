@@ -6,12 +6,14 @@
 This call uses the reportID in reportInfo object
 Used by Report Builder}
 \usage{
-loadReportBuilderReport(con_rb, reportInfo)
+loadReportBuilderReport(con_rb, reportInfo, report_config)
 }
 \arguments{
 \item{con_rb}{Report builder database connection}
 
 \item{reportInfo}{Named list from report builder/automatic generation tools with sample and report information}
+
+\item{report_config}{report config variables}
 }
 \value{
 reportInfo
