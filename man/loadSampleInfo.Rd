@@ -11,7 +11,8 @@ loadSampleInfo(
   seqrun,
   sample_accession,
   reportInfo,
-  path_gene_coverage_file
+  path_gene_coverage_file,
+  report_config
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ loadSampleInfo(
 \item{reportInfo}{Named list from report builder/automatic generation tools with report information}
 
 \item{path_gene_coverage_file}{path to gene coverage file}
+
+\item{report_config}{report config variables}
 }
 \value{
 reportInfo

@@ -179,11 +179,12 @@ loadUserMapping <- function(con_rb)
 #' @param sample_accession sample accession, character value
 #' @param reportInfo Named list from report builder/automatic generation tools with report information
 #' @param path_gene_coverage_file path to gene coverage file
+#' @param report_config report config variables
 #'
 #' @return reportInfo
 #'
 #' @export
-loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, path_gene_coverage_file)
+loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, path_gene_coverage_file, report_config)
 {
   data <-  getSampleInfo(con_pathOS, seqrun, sample_accession)
 
@@ -213,7 +214,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
       reportInfo$coverage_data <- coverageData
 
       #Load variant data
-      dataVariant <- getVariantInfo(con_pathOS, seqrun, sample_accession)
+      dataVariant <- getVariantInfo(con_pathOS, seqrun, sample_accession, report_config)
       if (nrow(dataVariant) == 0) #No reportable variants found
       {
         reportInfo$reportable_variants <- F
