@@ -69,7 +69,7 @@ loadCoverageData <- function(con_rb)
   query <- "SELECT * FROM DefCoverage;"
   coverage_data <- DBI::dbGetQuery(con_rb, query)
   coverage_data <- coverage_data[, -1]
-  colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons")
+  colnames(coverage_data) <- c("Gene", "Transcript", "Targeted exons", "Assay")
 
   return (coverage_data)
 }
@@ -210,6 +210,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
       reportInfo$urn <- data$urn
       reportInfo$dob <- formatDate(data$dob)
       reportInfo$gender <- data$sex
+      reportInfo$panel <- data$panel
 
       reportInfo$coverage_data <- coverageData
 
@@ -426,7 +427,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           ClinicalContextReport="', reportInfo$clinical_context_report, '",
                                           ClinicalContext="', reportInfo$clinical_context, '",
                                           FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
-                                          DDX41GermlineVarAnalysis="', reportInfo$ddx41_variant_analysis, '",
+                                          GermlineVariantAnalysis="', reportInfo$germline_variant_analysis, '",
+                                          VariantConfirmationGene="', reportInfo$vc_gene, '",
+                                          Comment="', reportInfo$comment, '",
                                           AuthorisedBy="', reportInfo$authorised_by, '",
                                           ReportedBy="', reportInfo$reported_by, '",
                                           LastModifiedBy="', reportInfo$session_user, '",
@@ -444,6 +447,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
                                           ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                           ResultsSummaryQual="', reportInfo$results_summary_qual, '",
+                                          ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
+                                          ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
+                                          ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
                                           ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
                                           ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
                                           ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
@@ -451,10 +457,12 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
                                           ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
                                           ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
-                                          ClinicalInterpretationDDX41="', reportInfo$clinical_interpretation_ddx41, '",
+                                          ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                           ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
-                                          DDX41Pathogenicity="', reportInfo$ddx41_pathogenicity, '",
-                                          DDX41Type="', reportInfo$ddx41_type, '";')
+                                          GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
+                                          GermlineVariantClassification="', reportInfo$germline_classification, '",
+                                          GermlineCondition="', reportInfo$germline_condition, '",
+                                          VarType="', reportInfo$var_type, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
@@ -490,7 +498,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                       ClinicalContextReport="', reportInfo$clinical_context_report, '",
                                       ClinicalContext="', reportInfo$clinical_context, '",
                                       FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
-                                      DDX41GermlineVarAnalysis="', reportInfo$ddx41_variant_analysis, '",
+                                      GermlineVariantAnalysis="', reportInfo$germline_variant_analysis, '",
+                                      VariantConfirmationGene="', reportInfo$vc_gene, '",
+                                      Comment="', reportInfo$comment, '",
                                       AuthorisedBy="', reportInfo$authorised_by, '",
                                       ReportedBy="', reportInfo$reported_by, '",
                                       LastModifiedBy="', reportInfo$session_user, '",
@@ -503,6 +513,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
     query <- paste0('UPDATE ReportBuilderInfo SET ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
                                         ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                         ResultsSummaryQual="', reportInfo$results_summary_qual, '",
+                                        ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
+                                        ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
+                                        ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
                                         ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
                                         ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
                                         ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
@@ -510,10 +523,12 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                         ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
                                         ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
                                         ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
-                                        ClinicalInterpretationDDX41="', reportInfo$clinical_interpretation_ddx41, '",
+                                        ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                         ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
-                                        DDX41Pathogenicity="', reportInfo$ddx41_pathogenicity, '",
-                                        DDX41Type="', reportInfo$ddx41_type, '"
+                                        GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
+                                        GermlineVariantClassification="', reportInfo$germline_classification, '",
+                                        GermlineCondition="', reportInfo$germline_condition, '",
+                                        VarType="', reportInfo$var_type, '"
                                         WHERE ReportBuilderInfoID ="', reportInfo$db_report_builder_info_id, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
@@ -604,8 +619,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
 #' @export
 loadSamples <- function(con_pathOS, seqrun)
 {
-  query <- paste0("SELECT seqrun.seqrun AS Seqrun, seq_sample.id AS SeqSampleID, seq_sample.sample_name AS SampleName FROM seq_sample
+  query <- paste0("SELECT seqrun.seqrun AS Seqrun, seq_sample.id AS SeqSampleID, seq_sample.sample_name AS SampleName, panel.manifest AS Panel FROM seq_sample
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    INNER JOIN panel ON panel.id = seq_sample.panel_id
                     WHERE seqrun.seqrun = '", seqrun , "';")
   samples_df <- dbGetQuery(con_pathOS, query)
 
@@ -661,9 +677,11 @@ loadPathOSData <- function(con_pathOS, samples, seqrun)
   #print(samples_str)
 
   query <- paste0("SELECT patient.*, seqrun.seqrun, pat_sample.collect_date, pat_sample.rcvd_date,
-                    pat_sample.requester, pat_sample.pathlab, pat_sample.ext_sample, seq_sample.id as seq_sample_id, seq_sample.sample_name FROM seq_sample
+                    pat_sample.requester, pat_sample.pathlab, pat_sample.ext_sample, seq_sample.id as seq_sample_id,
+                    seq_sample.sample_name, panel.manifest as panel FROM seq_sample
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
                     INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
+                    INNER JOIN panel ON panel.id = seq_sample.panel_id
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
                     WHERE seq_sample.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "';")
   data <- dbGetQuery(con_pathOS, query)
@@ -686,6 +704,7 @@ loadPathOSData <- function(con_pathOS, samples, seqrun)
     reportInfo$urn <- dataItem$urn
     reportInfo$dob <- formatDate(dataItem$dob)
     reportInfo$gender <- dataItem$sex
+    reportInfo$panel <- dataItem$panel
 
     lst_reportInfo[[i]] <- reportInfo
   }
@@ -728,27 +747,28 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
     {
       #Have the columns ready and add NA
       vals_NA <- rep(NA, nrow(data))
-      data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA,
-                               ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA, ClinicalContext=vals_NA, FLT3ITDAnalysis=vals_NA, DDX41GermlineVarAnalysis=vals_NA,
-                               AuthorisedBy=vals_NA, ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA,
-                               LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA, ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA,
-                               ResultsSummaryVarDesc=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
-                               ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA,
-                               ClinicalInterpretationDDX41=vals_NA, ClinicalInterpretationMiscChoices=vals_NA,
-                               DDX41Pathogenicity=vals_NA, DDX41Type=vals_NA)
+      data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA, ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA,
+                               ClinicalContext=vals_NA, FLT3ITDAnalysis=vals_NA, GermlineVariantAnalysis=vals_NA, VariantConfirmationGene=vals_NA, Comment=vals_NA, AuthorisedBy=vals_NA,
+                               ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA, LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA,
+                               ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryVarDesc=vals_NA, ResultsSummaryHAVCR2Result=vals_NA, ResultsSummaryHAVCR2Comment=vals_NA,
+                               ResultsSummaryVCConclusion=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
+                               ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA, ClinicalInterpretationPathogenicity=vals_NA,
+                               ClinicalInterpretationMiscChoices=vals_NA, GermlinePathogenicity=vals_NA, GermlineVariantClassification=vals_NA, GermlineCondition=vals_NA, VarType=vals_NA)
       data <- cbind(data, data_other)
     }
   }
   else
   {
     data <- data.frame(SampleID=numeric(0), SampleName=character(0), Seqrun=character(0), Specimen=character(0), ClinicalIndication=character(0), CorrelativeMorphology=character(0),
-                       SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), ReportID=numeric(0), Template=character(0), Type=character(0), Name=character(0), Status=character(0), ResultsSummary=character(0),
-                       ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0), FLT3ITDAnalysis=character(0), DDX41GermlineVarAnalysis=character(0),
-                       AuthorisedBy=character(0), ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0),
-                       LastModifiedDate=as.Date(character(0)), ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0),
-                       ResultsSummaryVarDesc=character(0), ClinicalInterpretationDesc=character(0), ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0),
-                       ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0), ClinicalInterpretationDisease=character(0),
-                       ClinicalInterpretationDDX41=character(0), ClinicalInterpretationMiscChoices=character(0), DDX41Pathogenicity=character(0), DDX41Type=character(0))
+                       SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), ReportID=numeric(0), Template=character(0), Type=character(0),
+                       Name=character(0), Status=character(0), ResultsSummary=character(0), ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0),
+                       FLT3ITDAnalysis=character(0), GermlineVariantAnalysis=character(0), VariantConfirmationGene=character(0), Comment=character(0), AuthorisedBy=character(0),
+                       ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0), LastModifiedDate=as.Date(character(0)),
+                       ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryVarDesc=character(0),
+                       ResultsSummaryHAVCR2Result=character(0), ResultsSummaryHAVCR2Comment=character(0), ResultsSummaryVCConclusion=character(0), ClinicalInterpretationDesc=character(0),
+                       ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0), ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0),
+                       ClinicalInterpretationDisease=character(0), ClinicalInterpretationPathogenicity=character(0), ClinicalInterpretationMiscChoices=character(0), GermlinePathogenicity=character(0),
+                       GermlineVariantClassification=character(0), GermlineCondition=character(0), VarType=character(0))
   }
 
   return (data)
@@ -819,7 +839,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
   #Add new reports
   report_data <- report_DB_data[, c("SampleID", "Template", "Type", "Name", "Status", "ResultsSummary", "ClinicalInterpretation", "ClinicalContextReport", "ClinicalContext", "AuthorisedBy", "ReportedBy",
-                                    "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "FLT3ITDAnalysis", "DDX41GermlineVarAnalysis")]
+                                    "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "FLT3ITDAnalysis", "GermlineVariantAnalysis", "VariantConfirmationGene", "Comment")]
   DBI::dbWriteTable(con_rb, "Report", report_data, row.names=F, append=T)
   #Get sample IDs
   query <- paste0("SELECT * FROM Report INNER JOIN Sample ON Sample.SampleID = Report.SampleID
@@ -833,9 +853,9 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
 
   #Add new ReportBuilderInfo
-  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ClinicalInterpretationDesc", "ClinicalInterpretationOther",
-                                                "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
-                                                "ClinicalInterpretationDisease", "ClinicalInterpretationDDX41", "ClinicalInterpretationMiscChoices", "DDX41Pathogenicity", "DDX41Type")]
+  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
+                                                "ClinicalInterpretationDesc", "ClinicalInterpretationOther", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
+                                                "ClinicalInterpretationDisease", "ClinicalInterpretationPathogenicity", "ClinicalInterpretationMiscChoices", "GermlinePathogenicity", "GermlineVariantClassification", "GermlineCondition", "VarType")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
 }
 
@@ -873,22 +893,29 @@ loadAllReports <- function(con_rb)
 #' @export
 generateReportTemplate <- function(reportInfo, report_config, coverage_data)
 {
+  #Filter coverage data based on the assay/panel
+  index <- which(names(report_config$report_panel_version) == reportInfo$panel)
+  assay_version <- unlist(report_config$report_panel_version[index])
+
+  coverage_data_sub <- subset(coverage_data, coverage_data$Assay == assay_version)
+  coverage_data_sub <- subset(coverage_data_sub, select=-c(Assay))
+
   #generate the coverage table and format
   if (reportInfo$report_type != "FAIL")
   {
-    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, report_config, coverage_data)
+    data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub)
     coverage_table <- coverageTableThemed(data_coverage)
   }
   else
   {
-    data_coverage <- returnCoverageTableFail(reportInfo$report_template, report_config, coverage_data)
+    data_coverage <- returnCoverageTableFail(reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub)
     coverage_table <- coverageTableThemedFail(data_coverage)
   }
 
   #Read the relevant template
   template_name <- paste0(reportInfo$report_template, "_", reportInfo$report_type, ".docx")
-  if (template_name == "AHD_DDX41_NEG.docx")
-    template_name <- "AHD_NEG.docx"
+  if (template_name == "AHD_DDX41_v3_NEG.docx")
+    template_name <- "AHD_v3_NEG.docx"
   else if (template_name == "MDX_MPN_NEG.docx")
     template_name <- "MDX_NEG.docx"
   else if (template_name == "MDX_MPN_VAR.docx")
@@ -897,8 +924,8 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     template_name <- "SG_TP53_NEG.docx"
   else if (template_name == "SG_TP53_CLL_VAR.docx")
     template_name <- "SG_TP53_VAR.docx"
-  else if (template_name == "AHD_DDX41_FAIL.docx")
-    template_name <- "AHD_FAIL.docx"
+  else if (template_name == "AHD_DDX41_v3_FAIL.docx")
+    template_name <- "AHD_v3_FAIL.docx"
   else if (template_name == "MDX_MPN_FAIL.docx")
     template_name <- "MDX_FAIL.docx"
   else if (template_name == "SG_TP53_CLL_FAIL.docx")
@@ -913,17 +940,29 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   report_template <- officer::body_replace_all_text(report_template, report_config$Dob,  reportInfo$dob)
   report_template <- officer::body_replace_all_text(report_template, report_config$Lab_No, reportInfo$sample_accession)
   report_template <- officer::body_replace_all_text(report_template, report_config$Sex, reportInfo$gender)
-  report_template <- officer::body_replace_all_text(report_template, report_config$Ext_Ref, reportInfo$ext_ref)
+  report_template <- officer::body_replace_all_text(report_template, report_config$Ext_Ref, ifelse(is.na(reportInfo$ext_ref), report_config$val_na, reportInfo$ext_ref))
   report_template <- officer::body_replace_all_text(report_template, report_config$Collected_Date,  reportInfo$collected_date)
   report_template <- officer::body_replace_all_text(report_template, report_config$Received_Date,  reportInfo$received_date)
   report_template <- officer::body_replace_all_text(report_template, report_config$Specimen, reportInfo$specimen_type)
   report_template <- officer::body_replace_all_text(report_template, report_config$Requester, reportInfo$requester)
   report_template <- officer::body_replace_all_text(report_template, report_config$Referral_Lab, reportInfo$referral_lab)
 
+  #Report comment
+  if (identical(reportInfo$comment, report_config$section_Delete))
+  {
+    report_template <- officer::cursor_reach(report_template, report_config$Report_Comment)
+    report_template <- officer::body_add_par(report_template, "", pos="before")
+    report_template <- officer::cursor_reach(report_template, report_config$Report_Comment)
+    report_template <- officer::body_remove(report_template)
+  }
+  else
+    report_template <- officer::body_replace_all_text(report_template, report_config$Report_Comment, reportInfo$comment)
+
   #Report area
   report_template <- officer::body_replace_all_text(report_template, report_config$Specimen_Details, reportInfo$specimen_details)
-  report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Indication, reportInfo$clinical_indication)
   report_template <- officer::body_replace_all_text(report_template, report_config$Authorised_By, reportInfo$authorised_by)
+  if (reportInfo$report_template != "SGVC")
+    report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Indication, reportInfo$clinical_indication)
 
   #save "reported by" if new line exists there is two
   if (grepl("\n", reportInfo$reported_by))
@@ -950,7 +989,13 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     report_template <- variantsReportResultsSection(report_template, reportInfo, report_config)
   }
 
-  if (reportInfo$report_template != "AH_cfDNA")
+  #Variant confirmation single gene report
+  if (reportInfo$report_template == "SGVC")
+  {
+    report_template <- officer::body_replace_all_text(report_template, report_config$VC_Gene, reportInfo$vc_gene)
+  }
+
+  if (reportInfo$report_template != "AH_cfDNA_v3")
   {
     report_template <- officer::body_replace_all_text(report_template, report_config$Correlative_Morphology, reportInfo$correlative_morphology)
   }
@@ -958,9 +1003,9 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   #FLT3_ITD and DDX41 germline variant analysis in reports with variants
   if (reportInfo$report_type == "VAR")
   {
-    if ((reportInfo$report_template == "AH") || (reportInfo$report_template == "AHD") || (reportInfo$report_template == "AHD_DDX41"))
+    if ((reportInfo$report_template == "AH_v3") || (reportInfo$report_template == "AHD_v3") || (reportInfo$report_template == "AHD_DDX41_v3"))
     {
-      if (identical(reportInfo$flt3_itd, report_config$flt3_Itd_Delete))
+      if (identical(reportInfo$flt3_itd, report_config$section_Delete))
       {
         report_template <- officer::cursor_reach(report_template, report_config$Flt3_Itd)
         report_template <- officer::body_remove(report_template)
@@ -969,9 +1014,15 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
         report_template <- officer::body_replace_all_text(report_template, report_config$Flt3_Itd, reportInfo$flt3_itd)
     }
 
-    if (reportInfo$report_template == "AHD_DDX41")
+    if ((reportInfo$report_template == "AHD_DDX41_v3") || (reportInfo$report_template == "SGVC"))
     {
-      report_template <- officer::body_replace_all_text(report_template, report_config$Ddx41_variant_analysis, reportInfo$ddx41_variant_analysis)
+      if (identical(reportInfo$germline_variant_analysis, report_config$section_Delete))
+      {
+        report_template <- officer::cursor_reach(report_template, report_config$Germline_variant_analysis)
+        report_template <- officer::body_remove(report_template)
+      }
+      else
+        report_template <- officer::body_replace_all_text(report_template, report_config$Germline_variant_analysis, reportInfo$germline_variant_analysis)
     }
   }
 
@@ -988,20 +1039,24 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     report_template <- officer::cursor_reach(report_template, report_config$Panel_table_text)
   #Align the table left in SG reports and center in others
   table_align <- "center"
-  if (grepl("^SG_", reportInfo$report_template))
+  if (grepl("^(SG_|SGVC)", reportInfo$report_template))
     table_align <- "left"
   report_template <- flextable::body_add_flextable(report_template, coverage_table, align=table_align)
 
   #Add variants table
   if (reportInfo$report_type == "VAR")
   {
-    variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context, report_config)
+    if (!((reportInfo$report_template == "SG_HAVCR2") || (reportInfo$report_template == "SGVC")))
+      variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context, report_config)
+    else
+      variants_table <- variantsTableThemedSG(reportInfo$variants, reportInfo$clinical_context, report_config)
+
     report_template <- officer::cursor_reach(report_template, report_config$Variants_table_text)
     report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
   }
 
   #Add clinical context to negative and variant existing reports
-  if (reportInfo$report_type != "FAIL")
+  if ((reportInfo$report_type != "FAIL") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
     if (reportInfo$clinical_context_report != "")
     {

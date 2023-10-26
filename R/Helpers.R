@@ -62,8 +62,9 @@ coverageTableThemed <- function(dataframe) {
   {
     #width
     table <- flextable::width(table, j=c(1, 2, 3, 4),
-                   width=c(1.18, 1.55, 1.87, 1.2), unit="cm")
-    table <- flextable::set_table_properties(table, layout="fixed", width=0.33)
+                   width=c(1.18, 1.88, 1.74, 1.2), unit="cm")
+
+    table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
   }
   else
   {
@@ -137,8 +138,8 @@ coverageTableThemedFail <- function(dataframe) {
   {
     #width
     table <- flextable::width(table, j=c(1, 2, 3),
-                   width=c(1.18, 1.55, 1.87), unit="cm")
-    table <- flextable::set_table_properties(table, layout="fixed", width=0.33)
+                   width=c(1.18, 1.88, 1.74), unit="cm")
+    table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
   }
   else
   {
@@ -224,6 +225,63 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   return (table)
 }
 
+# ---------------------------------------------------------------------------------
+# Reported Variants table style for SG_HAVCR2 and SGVC report templates
+# ---------------------------------------------------------------------------------
+variantsTableThemedSG <- function(dataframe, clinical_significance_header, report_writer_config) {
+
+  dataframe <- dataframe[, c("Gene", "Variant", "VRF")]
+  dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
+  dataframe["NVariant"] <- trimws(str_extract(dataframe$Variant, "^c[.].*\\s"), which="both")
+  dataframe["PVariant"] <- str_extract(dataframe$Variant, "p[.].*$")
+  dataframe <- dataframe[, c("Gene", "NVariant", "PVariant", "VRF")]
+
+  flextable::set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
+
+  table <- flextable::flextable(dataframe)
+
+  #Column names
+  table <- flextable::set_header_labels(table,
+                                        values = list(
+                                          "Gene" = "GENE",
+                                          "NVariant" = "NUCLEOTIDE VARIANT",
+                                          "PVariant" = "PROTEIN VARIANT",
+                                          "VRF" = "VRF (%)"
+                                        ))
+
+  #padding and colors
+  table <- flextable::colformat_double(table, decimal.mark=".", digits=0)
+  table <- flextable::padding(table, padding=0, part="all")
+  table <- flextable::padding(table, padding.left=3, part="all")
+  table <- flextable::bg(table, bg="#411E75", part="header")
+  table <- flextable::color(table, color="white", part="header")
+  table <- flextable::bold(table, part="all")
+
+  #text alignment
+  table <- flextable::valign(table, valign="center", part="all")
+  table <- flextable::align(table, align="left", part="all")
+
+  #width
+  table <- flextable::width(table, j=c(1, 2, 3, 4),
+                            width=c(3.73, 5.5, 5.5, 3.25), unit="cm")
+  table <- flextable::set_table_properties(table, layout="fixed", width=1)
+  table <- flextable::hrule(table, rule="atleast", part="body")
+  table <- flextable::height(table, height=0.74, unit="cm", part="body")
+
+  #borders
+  small_border = officer::fp_border(color="white", width=1.8)
+  big_border = officer::fp_border(color="white", width=3)
+
+  table <- flextable::border_remove(table)
+  table <- flextable::border_outer(table, part="all", border=small_border)
+  table <- flextable::border_inner_h(table, part="all", border=small_border)
+  table <- flextable::border_inner_v(table, part="all", border=small_border)
+  table <- flextable::bg(table, bg="#CFCCD6", part="body")
+  table <- flextable::font(table, fontname="Arial", part="header")
+
+  return (table)
+}
+
 ####################################################################################
 # Fetch and format data
 ####################################################################################
@@ -243,10 +301,12 @@ getSampleInfo <- function(con_pathOS, seqrun, sample_accession)
   #print(samples_str)
 
   query <- paste0("SELECT patient.*, seqrun.seqrun, pat_sample.collect_date, pat_sample.rcvd_date,
-                    pat_sample.requester, pat_sample.pathlab, pat_sample.ext_sample, seq_sample.id as seq_sample_id, seq_sample.sample_name FROM seq_sample
+                    pat_sample.requester, pat_sample.pathlab, pat_sample.ext_sample, seq_sample.id as seq_sample_id,
+                    seq_sample.sample_name, panel.manifest as panel FROM seq_sample
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
                     INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
+                    INNER JOIN panel ON panel.id = seq_sample.panel_id
                     WHERE seq_sample.sample_name IN (", samples_str, ") AND seqrun.seqrun = '", seqrun , "';")
   data <- DBI::dbGetQuery(con_pathOS, query)
 
@@ -266,18 +326,25 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   reportInfo$results_summary_var <- report_data$ResultsSummaryVarDesc
   reportInfo$results_summary_flt3 <- report_data$ResultsSummaryFLT3
   reportInfo$results_summary_qual <- report_data$ResultsSummaryQual
+  reportInfo$results_summary_havcr2_result <- report_data$ResultsSummaryHAVCR2Result
+  reportInfo$results_summary_havcr2_comment <- report_data$ResultsSummaryHAVCR2Comment
+  reportInfo$results_summary_vc_conclusion <- report_data$ResultsSummaryVCConclusion
   reportInfo$clinical_interpretation_sel <- report_data$ClinicalInterpretationOther
   reportInfo$clinical_interpretation_txt <- report_data$ClinicalInterpretationDesc
   reportInfo$clinical_interpretation_txt_var <- report_data$ClinicalInterpretationVarDesc
   reportInfo$clinical_interpretation_var <- report_data$ClinicalInterpretationVar
   reportInfo$clinical_interpretation_specimen <- report_data$ClinicalInterpretationSpecimen
   reportInfo$clinical_interpretation_disease <- report_data$ClinicalInterpretationDisease
-  reportInfo$clinical_interpretation_ddx41 <- report_data$ClinicalInterpretationDDX41
+  reportInfo$clinical_interpretation_pathogenicity <- report_data$ClinicalInterpretationPathogenicity
   reportInfo$clinical_interpretation_misc_choices <- report_data$ClinicalInterpretationMiscChoices
   reportInfo$flt3_itd <- report_data$FLT3ITDAnalysis
-  reportInfo$ddx41_variant_analysis <- report_data$DDX41GermlineVarAnalysis
-  reportInfo$ddx41_pathogenicity <- report_data$DDX41Pathogenicity
-  reportInfo$ddx41_type <- report_data$DDX41Type
+  reportInfo$vc_gene <- report_data$VariantConfirmationGene
+  reportInfo$comment <- report_data$Comment
+  reportInfo$germline_variant_analysis <- report_data$GermlineVariantAnalysis
+  reportInfo$germline_pathogenicity <- report_data$GermlinePathogenicity
+  reportInfo$germline_classification <- report_data$GermlineVariantClassification
+  reportInfo$germline_condition <- report_data$GermlineCondition
+  reportInfo$var_type <- report_data$VarType
   reportInfo$authorised_by <- report_data$AuthorisedBy
   reportInfo$reported_by <- report_data$ReportedBy
   reportInfo$clinical_context <- report_data$ClinicalContext
@@ -334,12 +401,12 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
 # ---------------------------------------------------------------------------------
 # Generate sample gene coverage table (depending on the report type)
 # ---------------------------------------------------------------------------------
-returnCoverageTable <- function(sample_coverage_data, report_type, report_config, coverage_data)
+returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data)
 {
-  if (report_type %in% c("AHD", "AHD_DDX41"))
+  if (report_type %in% c("AHD_v3", "AHD_DDX41_v3"))
   {
 
-    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_genes)
+    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_v3_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", "500x")]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
@@ -353,9 +420,9 @@ returnCoverageTable <- function(sample_coverage_data, report_type, report_config
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("AH", "AH_cfDNA"))
+  else if (report_type %in% c("AH_v3", "AH_cfDNA_v3"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_genes)
+    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_v3_genes)
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", "500x")]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
@@ -396,6 +463,42 @@ returnCoverageTable <- function(sample_coverage_data, report_type, report_config
 
     return (sample_coverage_sub_sg)
   }
+  else if (report_type == "SG_HAVCR2")
+  {
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
+    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SG_UBA1")
+  {
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_UBA1_genes)
+    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SG_UBTF")
+  {
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_UBTF_genes)
+    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SGVC")
+  {
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% vc_gene)
+    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+
+    return (sample_coverage_sub_sg)
+  }
 
   return(NULL)
 }
@@ -403,11 +506,12 @@ returnCoverageTable <- function(sample_coverage_data, report_type, report_config
 # ---------------------------------------------------------------------------------
 # Generate panel coverage info for failed reports
 # ---------------------------------------------------------------------------------
-returnCoverageTableFail <- function(report_type, report_config, coverage_data)
+returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverage_data)
 {
-  if (report_type %in% c("AHD", "AHD_DDX41"))
+
+  if (report_type %in% c("AHD_v3", "AHD_DDX41_v3"))
   {
-    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_genes)
+    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_v3_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -418,9 +522,9 @@ returnCoverageTableFail <- function(report_type, report_config, coverage_data)
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("AH", "AH_cfDNA"))
+  else if (report_type %in% c("AH_v3", "AH_cfDNA_v3"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_genes)
+    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_v3_genes)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
     sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -452,6 +556,30 @@ returnCoverageTableFail <- function(report_type, report_config, coverage_data)
 
     return (sample_coverage_sub_sg)
   }
+  else if (report_type == "SG_HAVCR2")
+  {
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SG_UBA1")
+  {
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_UBA1_genes)
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SG_UBTF")
+  {
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_UBTF_genes)
+
+    return (sample_coverage_sub_sg)
+  }
+  else if (report_type == "SGVC")
+  {
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% vc_gene)
+
+    return (sample_coverage_sub_sg)
+  }
 
   return(NULL)
 }
@@ -463,28 +591,25 @@ returnCoverageTableFail <- function(report_type, report_config, coverage_data)
 # Add clinical interpretation and results summary of negative reports to template
 # ---------------------------------------------------------------------------------
 negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
-  if (reportInfo$report_template != "AH_cfDNA")
+  if ((reportInfo$report_template != "AH_cfDNA_v3") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
-    if (reportInfo$clinical_interpretation_sel != " ")
-    {
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
-    }
-    else
-    {
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
-    }
-
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
                                     trimws(paste0(reportInfo$results_summary_flt3, reportInfo$results_summary_qual), which="both"))
   }
-  else
+  else if (reportInfo$report_template == "AH_cfDNA_v3")
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
-
-    if (reportInfo$report_template == "AH_cfDNA")
-      report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
-                                      trimws(paste0(reportInfo$results_summary_flt3, reportInfo$results_summary_qual), which="both"))
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, ifelse(reportInfo$results_summary_qual == " ", "", reportInfo$results_summary_qual))
+  }
+  else if (reportInfo$report_template == "SG_HAVCR2")
+  {
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, trimws(reportInfo$results_summary_qual, which="both"))
+  }
+  else if (reportInfo$report_template == "SGVC")
+  {
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
   }
 
   return (report)
@@ -495,7 +620,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 # ---------------------------------------------------------------------------------
 variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
-  if (reportInfo$report_template == "AHD_DDX41") #This report has 4 clinical interpretation lines
+  if (reportInfo$report_template == "AHD_DDX41_v3") #This report has 4 clinical interpretation lines
   {
     if (grepl("\n\n", reportInfo$clinical_interpretation_txt_var)) #multiple lines to break
     {
@@ -518,12 +643,18 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   else
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
-    report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
+    if ((reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
+      report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
   }
 
   #results summary
-  report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
-  report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
+  if ((reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
+  {
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
+  }
+  else
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_desc)
 
   return(report)
 }
