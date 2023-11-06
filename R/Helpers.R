@@ -75,7 +75,7 @@ coverageTableThemed <- function(dataframe) {
                    width=c(1.18, 1.55, 1.87, 1.2, 1.33, 1.9, 1.87, 1.2, 1.33, 1.9, 1.7, 1.1), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
-
+  table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
 
   return (table)
 }
@@ -150,7 +150,7 @@ coverageTableThemedFail <- function(dataframe) {
                    width=c(1.18, 1.55, 1.87, 1.33, 1.9, 1.9, 1.33, 1.9, 1.7), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
-
+  table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
 
   return (table)
 }
