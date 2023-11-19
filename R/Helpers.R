@@ -449,7 +449,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
     colnames(sample_coverage_sub_all)[4] <- "Coverage at >500x (%)"
 
     #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:28, ], sample_coverage_sub_all[29:56, ], sample_coverage_sub_all[57:84, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_all[1:27, ], sample_coverage_sub_all[28:54, ], sample_coverage_sub_all[55:81, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
                                      "Gene3", "Transcript3", "Targeted exons3", "500x3")
 
@@ -578,7 +578,7 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:28, ], sample_coverage_sub_all[29:56, ], sample_coverage_sub_all[57:84, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_all[1:27, ], sample_coverage_sub_all[28:54, ], sample_coverage_sub_all[55:81, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
                                      "Gene3", "Transcript3", "Targeted exons3")
 
