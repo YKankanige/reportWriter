@@ -228,7 +228,7 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
 # ---------------------------------------------------------------------------------
 # Reported Variants table style for SG_HAVCR2 and SGVC report templates
 # ---------------------------------------------------------------------------------
-variantsTableThemedSG <- function(dataframe, clinical_significance_header, report_writer_config) {
+variantsTableThemedSG <- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
 
   dataframe <- dataframe[, c("Gene", "Variant", "VRF")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
@@ -276,7 +276,11 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   table <- flextable::border_outer(table, part="all", border=small_border)
   table <- flextable::border_inner_h(table, part="all", border=small_border)
   table <- flextable::border_inner_v(table, part="all", border=small_border)
-  table <- flextable::bg(table, bg="#CFCCD6", part="body")
+  if (report_template == "SGVC")
+    table <- flextable::bg(table, bg="#E8E7EC", part="body")
+  else
+    table <- flextable::bg(table, bg="#CFCCD6", part="body")
+
   table <- flextable::font(table, fontname="Arial", part="header")
 
   return (table)

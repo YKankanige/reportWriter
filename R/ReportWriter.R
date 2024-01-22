@@ -1053,7 +1053,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     if (!((reportInfo$report_template == "SG_HAVCR2") || (reportInfo$report_template == "SGVC")))
       variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context, report_config)
     else
-      variants_table <- variantsTableThemedSG(reportInfo$variants, reportInfo$clinical_context, report_config)
+      variants_table <- variantsTableThemedSG(reportInfo$variants, reportInfo$clinical_context, report_config, reportInfo$report_template)
 
     report_template <- officer::cursor_reach(report_template, report_config$Variants_table_text)
     report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
