@@ -459,6 +459,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
                                           ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                           ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
+                                          ClinicalInterpretationMain="', reportInfo$clinical_interpretation_main, '",
                                           GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
                                           GermlineVariantClassification="', reportInfo$germline_classification, '",
                                           GermlineCondition="', reportInfo$germline_condition, '",
@@ -525,6 +526,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                         ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
                                         ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                         ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
+                                        ClinicalInterpretationMain="', reportInfo$clinical_interpretation_main, '",
                                         GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
                                         GermlineVariantClassification="', reportInfo$germline_classification, '",
                                         GermlineCondition="', reportInfo$germline_condition, '",
@@ -753,7 +755,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
                                ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryVarDesc=vals_NA, ResultsSummaryHAVCR2Result=vals_NA, ResultsSummaryHAVCR2Comment=vals_NA,
                                ResultsSummaryVCConclusion=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
                                ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA, ClinicalInterpretationPathogenicity=vals_NA,
-                               ClinicalInterpretationMiscChoices=vals_NA, GermlinePathogenicity=vals_NA, GermlineVariantClassification=vals_NA, GermlineCondition=vals_NA, VarType=vals_NA)
+                               ClinicalInterpretationMiscChoices=vals_NA, ClinicalInterpretationMain=vals_NA, GermlinePathogenicity=vals_NA, GermlineVariantClassification=vals_NA, GermlineCondition=vals_NA, VarType=vals_NA)
       data <- cbind(data, data_other)
     }
   }
@@ -767,7 +769,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
                        ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryVarDesc=character(0),
                        ResultsSummaryHAVCR2Result=character(0), ResultsSummaryHAVCR2Comment=character(0), ResultsSummaryVCConclusion=character(0), ClinicalInterpretationDesc=character(0),
                        ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0), ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0),
-                       ClinicalInterpretationDisease=character(0), ClinicalInterpretationPathogenicity=character(0), ClinicalInterpretationMiscChoices=character(0), GermlinePathogenicity=character(0),
+                       ClinicalInterpretationDisease=character(0), ClinicalInterpretationPathogenicity=character(0), ClinicalInterpretationMiscChoices=character(0), ClinicalInterpretationMain=character(0), GermlinePathogenicity=character(0),
                        GermlineVariantClassification=character(0), GermlineCondition=character(0), VarType=character(0))
   }
 
@@ -855,7 +857,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
   #Add new ReportBuilderInfo
   report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
                                                 "ClinicalInterpretationDesc", "ClinicalInterpretationOther", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
-                                                "ClinicalInterpretationDisease", "ClinicalInterpretationPathogenicity", "ClinicalInterpretationMiscChoices", "GermlinePathogenicity", "GermlineVariantClassification", "GermlineCondition", "VarType")]
+                                                "ClinicalInterpretationDisease", "ClinicalInterpretationPathogenicity", "ClinicalInterpretationMiscChoices", "ClinicalInterpretationMain", "GermlinePathogenicity", "GermlineVariantClassification", "GermlineCondition", "VarType")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
 }
 

@@ -341,6 +341,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   reportInfo$clinical_interpretation_disease <- report_data$ClinicalInterpretationDisease
   reportInfo$clinical_interpretation_pathogenicity <- report_data$ClinicalInterpretationPathogenicity
   reportInfo$clinical_interpretation_misc_choices <- report_data$ClinicalInterpretationMiscChoices
+  reportInfo$clinical_interpretation_main <- report_data$ClinicalInterpretationMain
   reportInfo$flt3_itd <- report_data$FLT3ITDAnalysis
   reportInfo$vc_gene <- report_data$VariantConfirmationGene
   reportInfo$comment <- report_data$Comment
