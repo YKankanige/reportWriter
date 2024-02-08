@@ -379,9 +379,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
   {
     sample_id <- reportInfo$db_sample_id
     query <- paste0('UPDATE Sample SET  Specimen="', reportInfo$specimen_type, '",
-                                    ClinicalIndication="', reportInfo$clinical_indication, '",
-                                    CorrelativeMorphology="', reportInfo$correlative_morphology, '",
-                                    SpecimenDetails="', reportInfo$specimen_details, '"
+                                    ClinicalIndication="', escapeQuote(reportInfo$clinical_indication), '",
+                                    CorrelativeMorphology="', escapeQuote(reportInfo$correlative_morphology), '",
+                                    SpecimenDetails="', escapeQuote(reportInfo$specimen_details), '"
                                     WHERE SampleID ="', sample_id, '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
@@ -392,9 +392,9 @@ saveReport <- function(con_rb, reportInfo, report_config)
     query <- paste0('INSERT INTO Sample SET SampleName="', reportInfo$sample_accession, '",
                                           Seqrun="', reportInfo$seqrun, '",
                                           Specimen="', reportInfo$specimen_type, '",
-                                          ClinicalIndication="', reportInfo$clinical_indication, '",
-                                          CorrelativeMorphology="', reportInfo$correlative_morphology, '",
-                                          SpecimenDetails="', reportInfo$specimen_details, '";')
+                                          ClinicalIndication="', escapeQuote(reportInfo$clinical_indication), '",
+                                          CorrelativeMorphology="', escapeQuote(reportInfo$correlative_morphology), '",
+                                          SpecimenDetails="', escapeQuote(reportInfo$specimen_details), '";')
     res <- DBI::dbSendQuery (con_rb, query)
     DBI::dbClearResult(res)
     query <- paste0("SELECT LAST_INSERT_ID();")
@@ -423,13 +423,13 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           Status="', reportInfo$report_status, '",
                                           Name="', reportInfo$report_name, '",
                                           ResultsSummary="', results_summary, '",
-                                          ClinicalInterpretation="', clinical_interpretation, '",
+                                          ClinicalInterpretation="', escapeQuote(clinical_interpretation), '",
                                           ClinicalContextReport="', reportInfo$clinical_context_report, '",
                                           ClinicalContext="', reportInfo$clinical_context, '",
-                                          FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
-                                          GermlineVariantAnalysis="', reportInfo$germline_variant_analysis, '",
+                                          FLT3ITDAnalysis="', escapeQuote(reportInfo$flt3_itd), '",
+                                          GermlineVariantAnalysis="', escapeQuote(reportInfo$germline_variant_analysis), '",
                                           VariantConfirmationGene="', reportInfo$vc_gene, '",
-                                          Comment="', reportInfo$comment, '",
+                                          Comment="', escapeQuote(reportInfo$comment), '",
                                           AuthorisedBy="', reportInfo$authorised_by, '",
                                           ReportedBy="', reportInfo$reported_by, '",
                                           LastModifiedBy="', reportInfo$session_user, '",
@@ -444,22 +444,22 @@ saveReport <- function(con_rb, reportInfo, report_config)
 
     #Insert reportInfo
     query <- paste0('INSERT INTO ReportBuilderInfo SET ReportID="', report_id, '",
-                                          ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
+                                          ResultsSummaryDesc="', escapeQuote(reportInfo$results_summary_desc), '",
                                           ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                           ResultsSummaryQual="', reportInfo$results_summary_qual, '",
                                           ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
                                           ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
                                           ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
-                                          ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
-                                          ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
+                                          ResultsSummaryVarDesc="', escapeQuote(reportInfo$results_summary_var), '",
+                                          ClinicalInterpretationDesc="', escapeQuote(reportInfo$clinical_interpretation_txt), '",
                                           ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
-                                          ClinicalInterpretationVarDesc="', reportInfo$clinical_interpretation_txt_var, '",
+                                          ClinicalInterpretationVarDesc="', escapeQuote(reportInfo$clinical_interpretation_txt_var), '",
                                           ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
                                           ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
                                           ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
                                           ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                           ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
-                                          ClinicalInterpretationMain="', reportInfo$clinical_interpretation_main, '",
+                                          ClinicalInterpretationMain="', escapeQuote(reportInfo$clinical_interpretation_main), '",
                                           GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
                                           GermlineVariantClassification="', reportInfo$germline_classification, '",
                                           GermlineCondition="', reportInfo$germline_condition, '",
@@ -494,14 +494,14 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                       Type="', reportInfo$report_type, '",
                                       Status="', reportInfo$report_status, '",
                                       Name="', reportInfo$report_name, '",
-                                      ResultsSummary="', results_summary, '",
-                                      ClinicalInterpretation="', clinical_interpretation, '",
+                                      ResultsSummary="', escapeQuote(results_summary), '",
+                                      ClinicalInterpretation="', escapeQuote(clinical_interpretation), '",
                                       ClinicalContextReport="', reportInfo$clinical_context_report, '",
                                       ClinicalContext="', reportInfo$clinical_context, '",
-                                      FLT3ITDAnalysis="', reportInfo$flt3_itd, '",
-                                      GermlineVariantAnalysis="', reportInfo$germline_variant_analysis, '",
+                                      FLT3ITDAnalysis="', escapeQuote(reportInfo$flt3_itd), '",
+                                      GermlineVariantAnalysis="', escapeQuote(reportInfo$germline_variant_analysis), '",
                                       VariantConfirmationGene="', reportInfo$vc_gene, '",
-                                      Comment="', reportInfo$comment, '",
+                                      Comment="', escapeQuote(reportInfo$comment), '",
                                       AuthorisedBy="', reportInfo$authorised_by, '",
                                       ReportedBy="', reportInfo$reported_by, '",
                                       LastModifiedBy="', reportInfo$session_user, '",
@@ -511,22 +511,22 @@ saveReport <- function(con_rb, reportInfo, report_config)
     DBI::dbClearResult(res)
 
     #Insert reportInfo
-    query <- paste0('UPDATE ReportBuilderInfo SET ResultsSummaryDesc="', reportInfo$results_summary_desc, '",
+    query <- paste0('UPDATE ReportBuilderInfo SET ResultsSummaryDesc="', escapeQuote(reportInfo$results_summary_desc), '",
                                         ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                         ResultsSummaryQual="', reportInfo$results_summary_qual, '",
                                         ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
                                         ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
                                         ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
-                                        ResultsSummaryVarDesc="', reportInfo$results_summary_var, '",
-                                        ClinicalInterpretationDesc="', reportInfo$clinical_interpretation_txt, '",
+                                        ResultsSummaryVarDesc="', escapeQuote(reportInfo$results_summary_var), '",
+                                        ClinicalInterpretationDesc="', escapeQuote(reportInfo$clinical_interpretation_txt), '",
                                         ClinicalInterpretationOther="', reportInfo$clinical_interpretation_sel, '",
-                                        ClinicalInterpretationVarDesc="', reportInfo$clinical_interpretation_txt_var, '",
+                                        ClinicalInterpretationVarDesc="', escapeQuote(reportInfo$clinical_interpretation_txt_var), '",
                                         ClinicalInterpretationVar="', reportInfo$clinical_interpretation_var, '",
                                         ClinicalInterpretationSpecimen="', reportInfo$clinical_interpretation_specimen, '",
                                         ClinicalInterpretationDisease="', reportInfo$clinical_interpretation_disease, '",
                                         ClinicalInterpretationPathogenicity="', reportInfo$clinical_interpretation_pathogenicity, '",
                                         ClinicalInterpretationMiscChoices="', reportInfo$clinical_interpretation_misc_choices, '",
-                                        ClinicalInterpretationMain="', reportInfo$clinical_interpretation_main, '",
+                                        ClinicalInterpretationMain="', escapeQuote(reportInfo$clinical_interpretation_main), '",
                                         GermlinePathogenicity="', reportInfo$germline_pathogenicity, '",
                                         GermlineVariantClassification="', reportInfo$germline_classification, '",
                                         GermlineCondition="', reportInfo$germline_condition, '",
@@ -813,9 +813,9 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
     for (i in 1:nrow(sample_data_existing))
     {
       query <- paste0('UPDATE Sample SET  Specimen="', sample_data_existing[i, ]$Specimen, '",
-                                    ClinicalIndication="', sample_data_existing[i, ]$ClinicalIndication, '",
-                                    CorrelativeMorphology="', sample_data_existing[i, ]$CorrelativeMorphology, '",
-                                    SpecimenDetails="', sample_data_existing[i, ]$SpecimenDetails, '"
+                                    ClinicalIndication="', escapeQuote(sample_data_existing[i, ]$ClinicalIndication), '",
+                                    CorrelativeMorphology="', escapeQuote(sample_data_existing[i, ]$CorrelativeMorphology), '",
+                                    SpecimenDetails="', escapeQuote(sample_data_existing[i, ]$SpecimenDetails), '"
                                     WHERE SampleID = "', sample_data_existing[i, ]$SampleID, '";')
       res <- DBI::dbSendQuery (con_rb, query)
       DBI::dbClearResult(res)

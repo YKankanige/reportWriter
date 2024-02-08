@@ -756,3 +756,13 @@ formatDate <- function(date_str)
 
   return (format(date, "%d-%b-%Y"))
 }
+
+# ---------------------------------------------------------------------------------
+# Quotations in text breaks save queries because of "s used in paste0
+# ---------------------------------------------------------------------------------
+escapeQuote <- function(val)
+{
+  val <- gsub('"', '""', val)
+
+  return (val)
+}
