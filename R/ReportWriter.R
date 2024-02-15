@@ -883,6 +883,87 @@ loadAllReports <- function(con_rb)
   return (report_data)
 }
 
+#' Function to check whether there are other possible samples for the same patient
+#'
+#' @param con_pathOS PathOS DB connection
+#' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
+#' @param report_config report config variables
+#'
+#' @return data frame of matching patient name, sample name and collection dates
+#'
+#' @export
+matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
+{
+  #split the name on space or , and check with like for every part
+  name_subs <- unlist(strsplit(reportInfo$patient_name, "( |,)"))
+  if (length(name_subs) == 0)
+    return (data.frame())
+
+  query_name_subs <- character(0)
+  for(name_sub in name_subs)
+  {
+    query_name_subs <- c(query_name_subs, paste0("full_name LIKE '%",  name_sub,"%'"))
+  }
+  query_name <- paste(query_name_subs, collapse = " OR ")
+  query_name <- paste0("(", query_name, ")")
+
+  #Check whether the dob looks valid, if so match dob
+  query_dob <- ""
+  dob <- as.Date(reportInfo$dob, format="%d-%b-%Y")
+  if (!is.na(dob))
+  {
+    if (as.numeric(format(dob,'%Y')) > 1901) # There are a lot of records as dob 1900/01/01. Removing those and other invalid entries
+      query_dob <- paste0(" AND dob = '", formatDateDB(dob) , "'")
+  }
+
+  query_gender <- ""
+  if (reportInfo$gender %in% c("F", "M")) #Check with gender if gender seem to be specified correctly
+    query_gender <- paste0(" AND sex = '", reportInfo$gender , "'")
+
+  query <-paste0("SELECT patient.full_name, patient.sex, patient.dob, patient.urn, seqrun.seqrun, pat_sample.collect_date,
+                    seq_sample.sample_name, panel.manifest as panel FROM seq_sample
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
+                    INNER JOIN panel ON panel.id = seq_sample.panel_id
+                    INNER JOIN patient ON pat_sample.patient_id = patient.id
+                    WHERE ", query_name, query_gender, query_dob, ";")
+  data <- dbGetQuery(con_pathOS, query)
+
+  #Fetch reported variants of the samples
+  sample_accessions <- data$sample_name
+
+  #Check whether the sample, seqrun combination exists
+  sample_names <- sample_accessions
+  sample_names <- c(sample_names, paste0(sample_names, "-1")) #because there are two samples
+  sample_names <- paste0("'", sample_names, "'")
+  samples_str <- paste(sample_names, collapse = ", ")
+  #print(samples_str)
+
+  query <- paste0("SELECT seq_sample.sample_name, seqrun.seqrun, gene, hgvsc, hgvsg, hgvsp, pos, read_depth, refseq_mrna,
+                    BIN(reportable) AS reportable, var_freq, var_panel_pct, variant FROM seq_variant
+                    INNER JOIN seq_sample ON seq_sample.id = seq_variant.seq_sample_id
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    WHERE seq_variant.sample_name IN (", samples_str, ") AND reportable = 1;")
+  df_variants <- DBI::dbGetQuery(con_pathOS, query)
+
+  #preprocess variants
+  df_variants <- df_variants[, c("sample_name", "seqrun", "gene", "hgvsc", "hgvsp", "var_freq")]
+  df_variants$hgvsp[df_variants$hgvsp == ""] <- report_config$hgvsp_NA
+  df_variants$variant <-  paste0(df_variants$gene, ": ", str_extract(df_variants$hgvsc, "c[.].*$"), " ", str_extract(df_variants$hgvsp, "p[.].*$"))
+
+  data["reported_variants"] <- "N/A"
+  for(i in 1:nrow(data))
+  {
+    #Reported variants
+    data_var_sub <- subset(df_variants, df_variants$sample_name == data[i, ]$sample_name & df_variants$seqrun == data[i, ]$seqrun)
+    if (nrow(data_var_sub) > 0)
+      data[i, ]$reported_variants <- paste(data_var_sub$variant, collapse = "\n ")
+  }
+
+
+  return (data)
+}
+
 
 #' Function to generate report template using list object reportInfo
 #'

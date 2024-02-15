@@ -758,6 +758,14 @@ formatDate <- function(date_str)
 }
 
 # ---------------------------------------------------------------------------------
+# Convert all dates to %Y-%m-%d format
+# ---------------------------------------------------------------------------------
+formatDateDB <- function(date)
+{
+  return (format(date, "%Y-%m-%d"))
+}
+
+# ---------------------------------------------------------------------------------
 # Quotations in text breaks save queries because of "s used in paste0
 # ---------------------------------------------------------------------------------
 escapeQuote <- function(val)
