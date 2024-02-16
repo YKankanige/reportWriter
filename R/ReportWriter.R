@@ -902,7 +902,7 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
   query_name_subs <- character(0)
   for(name_sub in name_subs)
   {
-    query_name_subs <- c(query_name_subs, paste0("full_name LIKE '%",  name_sub,"%'"))
+    query_name_subs <- c(query_name_subs, paste0("UPPER(full_name) LIKE UPPER('%",  name_sub,"%')"))
   }
   query_name <- paste(query_name_subs, collapse = " OR ")
   query_name <- paste0("(", query_name, ")")
@@ -928,6 +928,7 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
                     WHERE ", query_name, query_gender, query_dob, ";")
   data <- dbGetQuery(con_pathOS, query)
+  data["reported_variants"] <- "N/A"
 
   #Fetch reported variants of the samples
   sample_accessions <- data$sample_name
@@ -946,20 +947,21 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
                     WHERE seq_variant.sample_name IN (", samples_str, ") AND reportable = 1;")
   df_variants <- DBI::dbGetQuery(con_pathOS, query)
 
-  #preprocess variants
-  df_variants <- df_variants[, c("sample_name", "seqrun", "gene", "hgvsc", "hgvsp", "var_freq")]
-  df_variants$hgvsp[df_variants$hgvsp == ""] <- report_config$hgvsp_NA
-  df_variants$variant <-  paste0(df_variants$gene, ": ", str_extract(df_variants$hgvsc, "c[.].*$"), " ", str_extract(df_variants$hgvsp, "p[.].*$"))
-
-  data["reported_variants"] <- "N/A"
-  for(i in 1:nrow(data))
+  if (nrow(df_variants) > 0)
   {
-    #Reported variants
-    data_var_sub <- subset(df_variants, df_variants$sample_name == data[i, ]$sample_name & df_variants$seqrun == data[i, ]$seqrun)
-    if (nrow(data_var_sub) > 0)
-      data[i, ]$reported_variants <- paste(data_var_sub$variant, collapse = "\n ")
-  }
+    #preprocess variants
+    df_variants <- df_variants[, c("sample_name", "seqrun", "gene", "hgvsc", "hgvsp", "var_freq")]
+    df_variants$hgvsp[df_variants$hgvsp == ""] <- report_config$hgvsp_NA
+    df_variants$variant <-  paste0(df_variants$gene, ": ", str_extract(df_variants$hgvsc, "c[.].*$"), " ", str_extract(df_variants$hgvsp, "p[.].*$"), " ", round(df_variants$var_freq, 1))
 
+    for(i in 1:nrow(data))
+    {
+      #Reported variants
+      data_var_sub <- subset(df_variants, df_variants$sample_name == data[i, ]$sample_name & df_variants$seqrun == data[i, ]$seqrun)
+      if (nrow(data_var_sub) > 0)
+        data[i, ]$reported_variants <- paste(data_var_sub$variant, collapse = "\n ")
+    }
+  }
 
   return (data)
 }
