@@ -160,6 +160,10 @@ coverageTableThemedFail <- function(dataframe) {
 # ---------------------------------------------------------------------------------
 variantsTableThemed <- function(dataframe, clinical_significance_header, report_writer_config) {
 
+  #Allow creation of the table without entries
+  if (is.null(dataframe))
+    dataframe <- data.frame(AssumedOrigin=character(0), Gene=character(0), Variant=character(0), VRF=numeric(0), ClinicalSignificance=character(0))
+
   dataframe <- dataframe[, c("AssumedOrigin", "Gene", "Variant", "VRF", "ClinicalSignificance")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
   dataframe$Variant <- gsub(" p[.]", "\np.", dataframe$Variant) #make it two lines
@@ -229,6 +233,9 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
 # Reported Variants table style for SG_HAVCR2 and SGVC report templates
 # ---------------------------------------------------------------------------------
 variantsTableThemedSG <- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
+  #Allow creation of the table without entries
+  if (is.null(dataframe))
+    dataframe <- data.frame(AssumedOrigin=character(0), Gene=character(0), Variant=character(0), VRF=numeric(0), ClinicalSignificance=character(0))
 
   dataframe <- dataframe[, c("Gene", "Variant", "VRF")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na

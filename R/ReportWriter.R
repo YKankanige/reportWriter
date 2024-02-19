@@ -470,7 +470,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
     res <- DBI::dbGetQuery (con_rb, query)
     report_builder_id <- res$`LAST_INSERT_ID()`
 
-    if (reportInfo$report_type == "VAR")
+    if ((reportInfo$report_type == "VAR") && (!is.null(reportInfo$variants)))
     {
       #prepare data and append to the table
       variants <- reportInfo$variants
