@@ -405,7 +405,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
 
   #Combined results summary and clinical indication
   results_summary <- paste0(reportInfo$results_summary_var, " ", reportInfo$results_summary_desc, " ",
-                            reportInfo$results_summary_flt3, " ", reportInfo$results_summary_qual)
+                            reportInfo$results_summary_flt3, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
   results_summary <- trimws(results_summary, which="both")
   results_summary <- gsub("[ ]{2,}", " ", results_summary)
 
@@ -422,7 +422,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           Type="', reportInfo$report_type, '",
                                           Status="', reportInfo$report_status, '",
                                           Name="', reportInfo$report_name, '",
-                                          ResultsSummary="', results_summary, '",
+                                          ResultsSummary="', escapeQuote(results_summary), '",
                                           ClinicalInterpretation="', escapeQuote(clinical_interpretation), '",
                                           ClinicalContextReport="', reportInfo$clinical_context_report, '",
                                           ClinicalContext="', reportInfo$clinical_context, '",
@@ -445,6 +445,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
     #Insert reportInfo
     query <- paste0('INSERT INTO ReportBuilderInfo SET ReportID="', report_id, '",
                                           ResultsSummaryDesc="', escapeQuote(reportInfo$results_summary_desc), '",
+                                          ResultsSummaryDescOther="', escapeQuote(reportInfo$results_summary_desc_other), '",
                                           ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                           ResultsSummaryQual="', reportInfo$results_summary_qual, '",
                                           ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
@@ -512,6 +513,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
 
     #Insert reportInfo
     query <- paste0('UPDATE ReportBuilderInfo SET ResultsSummaryDesc="', escapeQuote(reportInfo$results_summary_desc), '",
+                                        ResultsSummaryDescOther="', escapeQuote(reportInfo$results_summary_desc_other), '",
                                         ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                         ResultsSummaryQual="', reportInfo$results_summary_qual, '",
                                         ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
@@ -752,7 +754,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
       data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA, ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA,
                                ClinicalContext=vals_NA, FLT3ITDAnalysis=vals_NA, GermlineVariantAnalysis=vals_NA, VariantConfirmationGene=vals_NA, Comment=vals_NA, AuthorisedBy=vals_NA,
                                ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA, LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA,
-                               ResultsSummaryDesc=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryVarDesc=vals_NA, ResultsSummaryHAVCR2Result=vals_NA, ResultsSummaryHAVCR2Comment=vals_NA,
+                               ResultsSummaryDesc=vals_NA, ResultsSummaryDescOther=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryVarDesc=vals_NA, ResultsSummaryHAVCR2Result=vals_NA, ResultsSummaryHAVCR2Comment=vals_NA,
                                ResultsSummaryVCConclusion=vals_NA, ClinicalInterpretationDesc=vals_NA, ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA,
                                ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA, ClinicalInterpretationDisease=vals_NA, ClinicalInterpretationPathogenicity=vals_NA,
                                ClinicalInterpretationMiscChoices=vals_NA, ClinicalInterpretationMain=vals_NA, GermlinePathogenicity=vals_NA, GermlineVariantClassification=vals_NA, GermlineCondition=vals_NA, VarType=vals_NA)
@@ -766,7 +768,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
                        Name=character(0), Status=character(0), ResultsSummary=character(0), ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0),
                        FLT3ITDAnalysis=character(0), GermlineVariantAnalysis=character(0), VariantConfirmationGene=character(0), Comment=character(0), AuthorisedBy=character(0),
                        ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0), LastModifiedDate=as.Date(character(0)),
-                       ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryVarDesc=character(0),
+                       ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryDescOther=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryVarDesc=character(0),
                        ResultsSummaryHAVCR2Result=character(0), ResultsSummaryHAVCR2Comment=character(0), ResultsSummaryVCConclusion=character(0), ClinicalInterpretationDesc=character(0),
                        ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0), ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0),
                        ClinicalInterpretationDisease=character(0), ClinicalInterpretationPathogenicity=character(0), ClinicalInterpretationMiscChoices=character(0), ClinicalInterpretationMain=character(0), GermlinePathogenicity=character(0),
@@ -855,7 +857,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
 
   #Add new ReportBuilderInfo
-  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
+  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryDescOther", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
                                                 "ClinicalInterpretationDesc", "ClinicalInterpretationOther", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
                                                 "ClinicalInterpretationDisease", "ClinicalInterpretationPathogenicity", "ClinicalInterpretationMiscChoices", "ClinicalInterpretationMain", "GermlinePathogenicity", "GermlineVariantClassification", "GermlineCondition", "VarType")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
@@ -895,7 +897,9 @@ loadAllReports <- function(con_rb)
 matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
 {
   #split the name on space or , and check with like for every part
-  name_subs <- unlist(strsplit(reportInfo$patient_name, "( |,)"))
+  #escape ' if existing in name
+  full_name <- gsub("'", "''", reportInfo$patient_name)
+  name_subs <- unlist(strsplit(full_name, "( |,)"))
   if (length(name_subs) == 0)
     return (data.frame())
 
@@ -920,15 +924,22 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
   if (reportInfo$gender %in% c("F", "M")) #Check with gender if gender seem to be specified correctly
     query_gender <- paste0(" AND sex = '", reportInfo$gender , "'")
 
-  query <-paste0("SELECT patient.full_name, patient.sex, patient.dob, patient.urn, seqrun.seqrun, pat_sample.collect_date,
+  data <- data.frame(full_name=character(0), sex=character(0), dob=character(0), urn=character(0), seqrun=character(0),
+                     collect_date=character(0), sample_name=character(0), panel=character(0))
+  query <- paste0("SELECT patient.full_name, patient.sex, patient.dob, patient.urn, seqrun.seqrun, pat_sample.collect_date,
                     seq_sample.sample_name, panel.manifest as panel FROM seq_sample
                     INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
                     INNER JOIN pat_sample ON seq_sample.pat_sample_id = pat_sample.id
                     INNER JOIN panel ON panel.id = seq_sample.panel_id
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
                     WHERE ", query_name, query_gender, query_dob, ";")
-  data <- dbGetQuery(con_pathOS, query)
-  data["reported_variants"] <- "N/A"
+  tryCatch({
+    data <- dbGetQuery(con_pathOS, query)
+    data["reported_variants"] <- "N/A"
+  }, error=function(e){
+    cat(paste0(e, "\n"))
+    cat("Error in fetching matching records\n")
+  })
 
   #Fetch reported variants of the samples
   sample_accessions <- data$sample_name

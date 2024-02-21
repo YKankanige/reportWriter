@@ -334,6 +334,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   reportInfo$report_template <- report_data$Template
   reportInfo$report_type <- report_data$Type
   reportInfo$results_summary_desc <- report_data$ResultsSummaryDesc
+  reportInfo$results_summary_desc_other <- report_data$ResultsSummaryDescOther
   reportInfo$results_summary_var <- report_data$ResultsSummaryVarDesc
   reportInfo$results_summary_flt3 <- report_data$ResultsSummaryFLT3
   reportInfo$results_summary_qual <- report_data$ResultsSummaryQual
@@ -669,13 +670,21 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
-    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary,
-                                    trimws(paste0(reportInfo$results_summary_flt3, reportInfo$results_summary_qual), which="both"))
+
+    results_summary <- paste0(reportInfo$results_summary_flt3, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- trimws(results_summary, which="both")
+    results_summary <- gsub("[ ]{2,}", " ", results_summary)
+
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
   }
   else if ((reportInfo$report_template == "AH_cfDNA_v3") || (reportInfo$report_template == "AH_cfDNA_v4"))
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
-    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, ifelse(reportInfo$results_summary_qual == " ", "", reportInfo$results_summary_qual))
+
+    results_summary <- paste0(reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- trimws(results_summary, which="both")
+    results_summary <- gsub("[ ]{2,}", " ", results_summary)
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
   }
   else if (reportInfo$report_template == "SG_HAVCR2")
   {
