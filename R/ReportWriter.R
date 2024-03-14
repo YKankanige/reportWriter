@@ -1064,20 +1064,8 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   if (reportInfo$report_template != "SGVC")
     report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Indication, reportInfo$clinical_indication)
 
-  #save "reported by" if new line exists there is two
-  if (grepl("\n", reportInfo$reported_by))
-  {
-    index <- regexpr("\n", reportInfo$reported_by)
-    reportedby1 <- trimws(substring(reportInfo$reported_by, 0, index), which="both")
-    reportedby2 <- trimws(substring(reportInfo$reported_by, index+1, nchar(reportInfo$reported_by)), which="both")
-    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By1, reportedby1)
-    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By2, reportedby2)
-  }
-  else
-  {
-    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By1, reportInfo$reported_by)
-    report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By2, "")
-  }
+  #save "reported by"
+  report_template <- officer::body_replace_all_text(report_template, report_config$Reported_By, reportInfo$reported_by)
 
 
   if (reportInfo$report_type == "NEG")
