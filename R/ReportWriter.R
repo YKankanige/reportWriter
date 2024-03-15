@@ -1010,26 +1010,16 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
 
   #Read the relevant template
   template_name <- paste0(reportInfo$report_template, "_", reportInfo$report_type, ".docx")
-  if (template_name == "AHD_DDX41_v3_NEG.docx")
-    template_name <- "AHD_v3_NEG.docx"
   if (template_name == "AHD_DDX41_v4_NEG.docx")
     template_name <- "AHD_v4_NEG.docx"
   else if (template_name == "MDX_MPN_NEG.docx")
     template_name <- "MDX_NEG.docx"
   else if (template_name == "MDX_MPN_VAR.docx")
     template_name <- "MDX_VAR.docx"
-  else if (template_name == "SG_TP53_CLL_NEG.docx")
-    template_name <- "SG_TP53_NEG.docx"
-  else if (template_name == "SG_TP53_CLL_VAR.docx")
-    template_name <- "SG_TP53_VAR.docx"
-  else if (template_name == "AHD_DDX41_v3_FAIL.docx")
-    template_name <- "AHD_v3_FAIL.docx"
   else if (template_name == "AHD_DDX41_v4_FAIL.docx")
     template_name <- "AHD_v4_FAIL.docx"
   else if (template_name == "MDX_MPN_FAIL.docx")
     template_name <- "MDX_FAIL.docx"
-  else if (template_name == "SG_TP53_CLL_FAIL.docx")
-    template_name <- "SG_TP53_FAIL.docx"
 
   report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
 
@@ -1083,7 +1073,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     report_template <- officer::body_replace_all_text(report_template, report_config$VC_Gene, reportInfo$vc_gene)
   }
 
-  if (!(reportInfo$report_template %in% c("AH_cfDNA_v3","AH_cfDNA_v4")))
+  if (reportInfo$report_template != "AH_cfDNA_v4")
   {
     report_template <- officer::body_replace_all_text(report_template, report_config$Correlative_Morphology, reportInfo$correlative_morphology)
   }
@@ -1091,7 +1081,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   #FLT3_ITD and DDX41 germline variant analysis in reports with variants
   if (reportInfo$report_type == "VAR")
   {
-    if (reportInfo$report_template %in% c("AH_v3", "AHD_v3", "AHD_DDX41_v3", "AH_v4", "AHD_v4", "AHD_DDX41_v4"))
+    if (reportInfo$report_template %in% c("AH_v4", "AHD_v4", "AHD_DDX41_v4"))
     {
       if (identical(reportInfo$flt3_itd, report_config$section_Delete))
       {
@@ -1102,7 +1092,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
         report_template <- officer::body_replace_all_text(report_template, report_config$Flt3_Itd, reportInfo$flt3_itd)
     }
 
-    if ((reportInfo$report_template == "AHD_DDX41_v3") || (reportInfo$report_template == "AHD_DDX41_v4") || (reportInfo$report_template == "SGVC"))
+    if ((reportInfo$report_template == "AHD_DDX41_v4") || (reportInfo$report_template == "SGVC"))
     {
       if (identical(reportInfo$germline_variant_analysis, report_config$section_Delete))
       {

@@ -417,41 +417,7 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
 # ---------------------------------------------------------------------------------
 returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data)
 {
-  if (report_type %in% c("AHD_v3", "AHD_DDX41_v3"))
-  {
-
-    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_v3_genes)
-    sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
-    sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
-    sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-    colnames(sample_coverage_sub_all)[4] <- "Coverage at >500x (%)"
-
-    #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:19, ], sample_coverage_sub_all[20:38, ], sample_coverage_sub_all[39:57, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "500x3")
-
-    return (coverage_data_sub)
-  }
-  else if (report_type %in% c("AH_v3", "AH_cfDNA_v3"))
-  {
-    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_v3_genes)
-    sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
-    sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
-    sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-    colnames(sample_coverage_sub_no_ddx41)[4] <- "Coverage at >500x (%)"
-
-    #Prepare data for display
-    sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:19, ], sample_coverage_sub_no_ddx41[20:38, ], sample_coverage_sub_no_ddx41[39:57, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "500x3")
-
-    return (coverage_data_sub)
-  }
-  else if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
+  if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
   {
 
     sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_v4_genes)
@@ -502,36 +468,9 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("SG_TP53", "SG_TP53_CLL"))
-  {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_TP53_genes)
-    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
-
-    return (sample_coverage_sub_sg)
-  }
   else if (report_type == "SG_HAVCR2")
   {
     sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
-    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
-
-    return (sample_coverage_sub_sg)
-  }
-  else if (report_type == "SG_UBA1")
-  {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_UBA1_genes)
-    sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
-
-    return (sample_coverage_sub_sg)
-  }
-  else if (report_type == "SG_UBTF")
-  {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_UBTF_genes)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
     sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
     colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
@@ -557,34 +496,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverage_data)
 {
 
-  if (report_type %in% c("AHD_v3", "AHD_DDX41_v3"))
-  {
-    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_v3_genes)
-    sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
-    sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-
-    #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:19, ], sample_coverage_sub_all[20:38, ], sample_coverage_sub_all[39:57, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
-                                     "Gene3", "Transcript3", "Targeted exons3")
-
-    return (coverage_data_sub)
-  }
-  else if (report_type %in% c("AH_v3", "AH_cfDNA_v3"))
-  {
-    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_v3_genes)
-    sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
-    sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-
-    #Prepare data for display
-    sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:19, ], sample_coverage_sub_no_ddx41[20:38, ], sample_coverage_sub_no_ddx41[39:57, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
-                                     "Gene3", "Transcript3", "Targeted exons3")
-
-    return (coverage_data_sub)
-  }
-  else if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
+  if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
   {
     sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_v4_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
@@ -625,27 +537,9 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("SG_TP53", "SG_TP53_CLL"))
-  {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_TP53_genes)
-
-    return (sample_coverage_sub_sg)
-  }
   else if (report_type == "SG_HAVCR2")
   {
     sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
-
-    return (sample_coverage_sub_sg)
-  }
-  else if (report_type == "SG_UBA1")
-  {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_UBA1_genes)
-
-    return (sample_coverage_sub_sg)
-  }
-  else if (report_type == "SG_UBTF")
-  {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_UBTF_genes)
 
     return (sample_coverage_sub_sg)
   }
@@ -666,7 +560,7 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
 # Add clinical interpretation and results summary of negative reports to template
 # ---------------------------------------------------------------------------------
 negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
-  if ((reportInfo$report_template != "AH_cfDNA_v3") && (reportInfo$report_template != "AH_cfDNA_v4") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
+  if ((reportInfo$report_template != "AH_cfDNA_v4") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
@@ -677,7 +571,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
   }
-  else if ((reportInfo$report_template == "AH_cfDNA_v3") || (reportInfo$report_template == "AH_cfDNA_v4"))
+  else if (reportInfo$report_template == "AH_cfDNA_v4")
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
 
@@ -703,7 +597,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 # ---------------------------------------------------------------------------------
 variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
-  if ((reportInfo$report_template == "AHD_DDX41_v3") || (reportInfo$report_template == "AHD_DDX41_v4"))#This report has 4 clinical interpretation lines
+  if ((reportInfo$report_template == "AHD_DDX41_v4"))#This report has 4 clinical interpretation lines
   {
     if (grepl("\n\n", reportInfo$clinical_interpretation_txt_var)) #multiple lines to break
     {
