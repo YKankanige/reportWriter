@@ -628,7 +628,11 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   if ((reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
-    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, reportInfo$results_summary_qual)
+
+    results_summary <- paste0(reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- trimws(results_summary, which="both")
+    results_summary <- gsub("[ ]{2,}", " ", results_summary)
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, results_summary)
   }
   else
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_desc)
