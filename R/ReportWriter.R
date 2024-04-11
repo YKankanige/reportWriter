@@ -307,6 +307,7 @@ loadReportBuilderData <- function(con_rb, reportInfo, report_config)
     reportInfo$specimen_details <- data$SpecimenDetails
     reportInfo$clinical_context_report <- data$InitialClinicalContextReport
     reportInfo$requested_panel <- data$RequestedPanel
+    reportInfo$requester_code <- data$RequesterCode
 
     #Check whether a report exists (sample info can exist without a report if loaded via NVD identifier)
     query <- paste0("SELECT * FROM Report
@@ -764,7 +765,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
   else
   {
     data <- data.frame(SampleID=numeric(0), SampleName=character(0), Seqrun=character(0), Specimen=character(0), ClinicalIndication=character(0), CorrelativeMorphology=character(0),
-                       SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), ReportID=numeric(0), Template=character(0), Type=character(0),
+                       SpecimenDetails=character(0), RequestedPanel=character(0), InitialClinicalContextReport=character(0), RequesterCode=character(0), ReportID=numeric(0), Template=character(0), Type=character(0),
                        Name=character(0), Status=character(0), ResultsSummary=character(0), ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0),
                        FLT3ITDAnalysis=character(0), GermlineVariantAnalysis=character(0), VariantConfirmationGene=character(0), Comment=character(0), AuthorisedBy=character(0),
                        ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0), LastModifiedDate=as.Date(character(0)),
@@ -789,7 +790,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
 #' @export
 saveSampleInfo <- function(con_rb, data)
 {
-  sample_data <- data[, c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel", "InitialClinicalContextReport")]
+  sample_data <- data[, c("SampleName", "Seqrun", "Specimen", "ClinicalIndication", "CorrelativeMorphology", "SpecimenDetails", "RequestedPanel", "InitialClinicalContextReport", "RequesterCode")]
   DBI::dbWriteTable(con_rb, "Sample", sample_data, row.names=F, append=T)
 }
 
@@ -1109,6 +1110,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Urn, reportInfo$urn, warn=F)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Dob, reportInfo$dob, warn=F)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Lab_No, reportInfo$sample_accession, warn=F)
+  report_template <- officer::footers_replace_all_text(report_template, report_config$Requester_Code, reportInfo$requester_code, warn=F)
 
   #Add coverage table
   if (reportInfo$report_type != "FAIL")
