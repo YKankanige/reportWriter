@@ -925,7 +925,7 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
   if (reportInfo$gender %in% c("F", "M")) #Check with gender if gender seem to be specified correctly
     query_gender <- paste0(" AND sex = '", reportInfo$gender , "'")
 
-  data <- data.frame(full_name=character(0), sex=character(0), dob=character(0), urn=character(0), seqrun=character(0),
+  data_all <- data.frame(full_name=character(0), sex=character(0), dob=character(0), urn=character(0), seqrun=character(0),
                      collect_date=character(0), sample_name=character(0), panel=character(0))
   query <- paste0("SELECT patient.full_name, patient.sex, patient.dob, patient.urn, seqrun.seqrun, pat_sample.collect_date,
                     seq_sample.sample_name, panel.manifest as panel FROM seq_sample
@@ -935,12 +935,31 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
                     INNER JOIN patient ON pat_sample.patient_id = patient.id
                     WHERE ", query_name, query_gender, query_dob, ";")
   tryCatch({
-    data <- dbGetQuery(con_pathOS, query)
-    data["reported_variants"] <- "N/A"
+    data_all <- dbGetQuery(con_pathOS, query)
+    data_all["reported_variants"] <- "N/A"
   }, error=function(e){
     cat(paste0(e, "\n"))
     cat("Error in fetching matching records\n")
   })
+
+  #Fetched patient full name can have partial word matches. So subset for full words
+  data <- data.frame(full_name=character(0), sex=character(0), dob=character(0), urn=character(0), seqrun=character(0),
+                         collect_date=character(0), sample_name=character(0), panel=character(0))
+  if (nrow(data_all) > 0)
+  {
+    if (length(name_subs) == 1)
+    {
+      data <- data_all[which(grepl(paste0("\\<", toupper(name_subs[1]) , "\\>"), toupper(data_all$full_name))), ]
+    }
+    else if (length(name_subs) > 1)
+    {
+      for(name_sub in name_subs)
+      {
+        data_sub <- data_all[which(grepl(paste0("\\<", toupper(name_sub) , "\\>"), toupper(data_all$full_name))), ]
+        data <- rbind(data, data_sub)
+      }
+    }
+  }
 
   #Fetch reported variants of the samples
   sample_accessions <- data$sample_name
