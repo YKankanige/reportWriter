@@ -1124,6 +1124,37 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
     }
   }
 
+  #Fetch reported fusions of the samples
+  sample_accessions <- data$sample_name
+
+  #Check whether the sample, seqrun combination exists
+  sample_names <- sample_accessions
+  sample_names <- c(sample_names, paste0(sample_names, "-1")) #because there are two samples
+  sample_names <- paste0("'", sample_names, "'")
+  samples_str <- paste(sample_names, collapse = ", ")
+  #print(samples_str)
+
+  query <- paste0("SELECT seq_sample.sample_name, seqrun.seqrun, fusion,
+                    BIN(reportable) AS reportable FROM seq_rna_fusion
+                    INNER JOIN seq_sample ON seq_sample.id = seq_rna_fusion.seq_sample_id
+                    INNER JOIN seqrun ON seq_sample.seqrun_id = seqrun.id
+                    WHERE seq_sample.sample_name IN (", samples_str, ") AND reportable = 1;")
+  df_fusions <- DBI::dbGetQuery(con_pathOS, query)
+
+  if (nrow(df_fusions) > 0)
+  {
+    #preprocess variants
+    df_fusions <- df_fusions[, c("sample_name", "seqrun", "fusion")]
+
+    for(i in 1:nrow(data))
+    {
+      #Reported variants
+      data_var_sub <- subset(df_fusions, df_fusions$sample_name == data[i, ]$sample_name & df_fusions$seqrun == data[i, ]$seqrun)
+      if (nrow(data_var_sub) > 0)
+        data[i, ]$reported_variants <- paste(data_var_sub$fusion, collapse = "\n ")
+    }
+  }
+
   return (data)
 }
 
