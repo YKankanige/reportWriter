@@ -321,7 +321,7 @@ getFusionInfo <- function(con_pathOS, seqrun, sample_accession, report_config)
 
   #preprocess fusions
   data$fusion <-  sub("[-]", "::", data$fusion)
-  data["breakpoint"] <- paste0("exon ", data$gene1exon, "::exon ", data$gene2exon, "\n(", data$gene1transcript, "::", data$gene1transcript, ")")
+  data["breakpoint"] <- paste0("exon ", data$gene1exon, "::exon ", data$gene2exon, " (", data$gene1transcript, "::", data$gene1transcript, ")")
 
   df <- data.frame(ReportFusionID=NA, ReportID=NA, Fusion=data$fusion, Breakpoint=data$breakpoint, ClinicalSignificance=NA, stringsAsFactors=F)
 
