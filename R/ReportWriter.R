@@ -543,7 +543,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
       fusions["ReportID"] <- report_id
       fusions <- fusions[, c("ReportID", "Fusion", "Breakpoint", "ClinicalSignificance")]
       rownames(fusions) <- NULL
-      DBI::dbWriteTable(con_rb, "ReporFusion", fusions, row.names=F, append=T)
+      DBI::dbWriteTable(con_rb, "ReportFusion", fusions, row.names=F, append=T)
     }
 
     #Assign values to report info
