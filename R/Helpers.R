@@ -396,7 +396,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   reportInfo$results_summary_var <- report_data$ResultsSummaryVarDesc
   reportInfo$results_summary_flt3 <- report_data$ResultsSummaryFLT3
   reportInfo$results_summary_qual <- report_data$ResultsSummaryQual
-  reportInfo$results_summary_dna <- report_data$ResultsSummaryDNA
+  reportInfo$results_summary_dna_rna <- report_data$ResultsSummaryDNARNA
   reportInfo$results_summary_havcr2_result <- report_data$ResultsSummaryHAVCR2Result
   reportInfo$results_summary_havcr2_comment <- report_data$ResultsSummaryHAVCR2Comment
   reportInfo$results_summary_vc_conclusion <- report_data$ResultsSummaryVCConclusion
@@ -638,7 +638,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
 
-    results_summary <- paste0(reportInfo$results_summary_flt3, " ", reportInfo$results_summary_dna, " ", reportInfo$results_summary_qual, " ",
+    results_summary <- paste0(reportInfo$results_summary_flt3, " ", reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ",
                               reportInfo$results_summary_desc_other)
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
@@ -649,7 +649,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
 
-    results_summary <- paste0(reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
@@ -701,7 +701,7 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   #results summary
   if (reportInfo$report_template == "RNA_v1")
   {
-    results_summary <- paste0(reportInfo$results_summary_dna, " ", reportInfo$results_summary_qual)
+    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual)
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
@@ -710,7 +710,7 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
 
-    results_summary <- paste0(reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, results_summary)

@@ -456,7 +456,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
 
   #Combined results summary and clinical indication
   results_summary <- paste0(reportInfo$results_summary_var, " ", reportInfo$results_summary_desc, " ",
-                            reportInfo$results_summary_flt3, " ", reportInfo$results_summary_dna, " ",
+                            reportInfo$results_summary_flt3, " ", reportInfo$results_summary_dna_rna, " ",
                             reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
   results_summary <- trimws(results_summary, which="both")
   results_summary <- gsub("[ ]{2,}", " ", results_summary)
@@ -500,7 +500,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                           ResultsSummaryDescOther="', escapeQuote(reportInfo$results_summary_desc_other), '",
                                           ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                           ResultsSummaryQual="', reportInfo$results_summary_qual, '",
-                                          ResultsSummaryDNA="', reportInfo$results_summary_dna, '",
+                                          ResultsSummaryDNARNA="', reportInfo$results_summary_dna_rna, '",
                                           ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
                                           ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
                                           ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
@@ -580,7 +580,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
                                         ResultsSummaryDescOther="', escapeQuote(reportInfo$results_summary_desc_other), '",
                                         ResultsSummaryFLT3="', reportInfo$results_summary_flt3, '",
                                         ResultsSummaryQual="', reportInfo$results_summary_qual, '",
-                                        ResultsSummaryDNA="', reportInfo$results_summary_dna, '",
+                                        ResultsSummaryDNARNA="', reportInfo$results_summary_dna_rna, '",
                                         ResultsSummaryHAVCR2Result="', reportInfo$results_summary_havcr2_result, '",
                                         ResultsSummaryHAVCR2Comment="', reportInfo$results_summary_havcr2_comment, '",
                                         ResultsSummaryVCConclusion="', reportInfo$results_summary_vc_conclusion, '",
@@ -1250,9 +1250,9 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   {
     report_template <- variantsReportResultsSection(report_template, reportInfo, report_config)
   }
-  else if (reportInfo$report_template == "RNA_v1")#failed and RNA_v1
+  else #failed
   {
-    results_summary <- trimws(reportInfo$results_summary_dna, which="both")
+    results_summary <- trimws(reportInfo$results_summary_dna_rna, which="both")
 
     report_template <- officer::body_replace_all_text(report_template, report_config$Results_Summary, results_summary)
   }
