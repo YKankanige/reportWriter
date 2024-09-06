@@ -882,7 +882,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
       data_other <- data.frame(ReportID=vals_NA, Template=vals_NA, Type=vals_NA, Name=vals_NA, Status=vals_NA, ResultsSummary=vals_NA, ClinicalInterpretation=vals_NA, ClinicalContextReport=vals_NA,
                                ClinicalContext=vals_NA, FLT3ITDAnalysis=vals_NA, GermlineVariantAnalysis=vals_NA, VariantConfirmationGene=vals_NA, Comment=vals_NA, AuthorisedBy=vals_NA,
                                ReportedBy=vals_NA, SecondCheckedBy=vals_NA, CreatedBy=vals_NA, CreatedDate=vals_NA, LastModifiedBy=vals_NA, LastModifiedDate=vals_NA, ReportBuilderInfoID=vals_NA,
-                               ResultsSummaryDesc=vals_NA, ResultsSummaryDescOther=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryDNA=vals_NA, ResultsSummaryVarDesc=vals_NA,
+                               ResultsSummaryDesc=vals_NA, ResultsSummaryDescOther=vals_NA, ResultsSummaryFLT3=vals_NA, ResultsSummaryQual=vals_NA, ResultsSummaryDNARNA=vals_NA, ResultsSummaryVarDesc=vals_NA,
                                ResultsSummaryHAVCR2Result=vals_NA, ResultsSummaryHAVCR2Comment=vals_NA, ResultsSummaryVCConclusion=vals_NA, ClinicalInterpretationDesc=vals_NA,
                                ClinicalInterpretationOther=vals_NA, ClinicalInterpretationVarDesc=vals_NA, ClinicalInterpretationVar=vals_NA, ClinicalInterpretationSpecimen=vals_NA,
                                ClinicalInterpretationDisease=vals_NA, ClinicalInterpretationFusion=vals_NA, ClinicalInterpretationPathogenicity=vals_NA, ClinicalInterpretationMiscChoices=vals_NA, ClinicalInterpretationMain=vals_NA,
@@ -897,7 +897,7 @@ loadReportBuilderInfo <- function(con_rb, seqrun)
                        Name=character(0), Status=character(0), ResultsSummary=character(0), ClinicalInterpretation=character(0), ClinicalContextReport=character(0), ClinicalContext=character(0),
                        FLT3ITDAnalysis=character(0), GermlineVariantAnalysis=character(0), VariantConfirmationGene=character(0), Comment=character(0), AuthorisedBy=character(0),
                        ReportedBy=character(0), SecondCheckedBy=character(0), CreatedBy=character(0), CreatedDate=as.Date(character(0)), LastModifiedBy=character(0), LastModifiedDate=as.Date(character(0)),
-                       ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryDescOther=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryDNA=character(0),
+                       ReportBuilderInfoID=numeric(0), ResultsSummaryDesc=character(0), ResultsSummaryDescOther=character(0), ResultsSummaryFLT3=character(0), ResultsSummaryQual=character(0), ResultsSummaryDNARNA=character(0),
                        ResultsSummaryVarDesc=character(0), ResultsSummaryHAVCR2Result=character(0), ResultsSummaryHAVCR2Comment=character(0), ResultsSummaryVCConclusion=character(0), ClinicalInterpretationDesc=character(0),
                        ClinicalInterpretationOther=character(0), ClinicalInterpretationVarDesc=character(0), ClinicalInterpretationVar=character(0), ClinicalInterpretationSpecimen=character(0),
                        ClinicalInterpretationDisease=character(0), ClinicalInterpretationFusion=character(0), ClinicalInterpretationPathogenicity=character(0), ClinicalInterpretationMiscChoices=character(0), ClinicalInterpretationMain=character(0), GermlinePathogenicity=character(0),
@@ -986,7 +986,7 @@ saveNVDReports <- function(con_rb, report_DB_data, seqrun)
 
 
   #Add new ReportBuilderInfo
-  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryDescOther", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryDNA", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
+  report_builderInfo_data <- report_DB_data[, c("ReportID", "ResultsSummaryDesc", "ResultsSummaryDescOther", "ResultsSummaryFLT3", "ResultsSummaryQual", "ResultsSummaryDNARNA", "ResultsSummaryHAVCR2Result", "ResultsSummaryHAVCR2Comment", "ResultsSummaryVCConclusion",
                                                 "ClinicalInterpretationDesc", "ClinicalInterpretationOther", "ResultsSummaryVarDesc", "ClinicalInterpretationVarDesc", "ClinicalInterpretationVar", "ClinicalInterpretationSpecimen",
                                                 "ClinicalInterpretationDisease", "ClinicalInterpretationFusion", "ClinicalInterpretationPathogenicity", "ClinicalInterpretationMiscChoices", "ClinicalInterpretationMain", "GermlinePathogenicity", "GermlineVariantClassification", "GermlineCondition", "VarType")]
   DBI::dbWriteTable(con_rb, "ReportBuilderInfo", report_builderInfo_data, row.names=F, append=T)
