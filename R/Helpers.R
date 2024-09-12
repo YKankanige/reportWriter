@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------------------------
 # Gene coverage table style
 # ---------------------------------------------------------------------------------
-coverageTableThemed <- function(dataframe) {
+coverageTableThemed <- function(dataframe, coverage_level) {
   flextable::set_flextable_defaults(font.size=6, font.family="Arial", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
@@ -16,7 +16,7 @@ coverageTableThemed <- function(dataframe) {
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
                                  "Targeted exons" = "Targeted exons",
-                                 "500x" = "Coverage at >500x (%)"
+                                 "Coverage" = paste0("Coverage at >", coverage_level, " (%)")
                                ))
   else
     table <- flextable::set_header_labels(table,
@@ -24,15 +24,15 @@ coverageTableThemed <- function(dataframe) {
                                  "Gene" = "Gene",
                                  "Transcript" = "Transcript",
                                  "Targeted exons" = "Targeted exons",
-                                 "500x" = "Coverage at >500x (%)",
+                                 "Coverage1" = paste0("Coverage at >", coverage_level, " (%)"),
                                  "Gene2"= "Gene",
                                  "Transcript2" = "Transcript",
                                  "Targeted exons2" = "Targeted exons",
-                                 "500x2"= "Coverage at >500x (%)",
+                                 "Coverage2" = paste0("Coverage at >", coverage_level, " (%)"),
                                  "Gene3"= "Gene",
                                  "Transcript3" = "Transcript",
                                  "Targeted exons3" = "Targeted exons",
-                                 "500x3" = "Coverage at >500x (%)"
+                                 "Coverage3" = paste0("Coverage at >", coverage_level, " (%)")
                                ))
 
 
@@ -459,7 +459,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
 # ---------------------------------------------------------------------------------
 # Generate sample gene coverage table (depending on the report type)
 # ---------------------------------------------------------------------------------
-getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
+getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_level)
 {
   seqrun <- trimws(seqrun, which="both")
   sample <- trimws(sample, which="both")
@@ -473,11 +473,11 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
     #PLS CHECK, QUICK FIX FOR MFSD11;SRSF2
     sample_coverage_data$Gene[sample_coverage_data$Gene == "MFSD11;SRSF2"] <- "SRSF2"
 
-    sample_coverage_data[, "500x"] <- sample_coverage_data[, "500x"] + 0.00000001 #Add a very small number to round up 0.05, 0.15 etc in MS excel way
-    sample_coverage_data[, "500x"] <- round(sample_coverage_data[, "500x"], 1)
-    sample_coverage_data[, "500x"] <- as.character(sample_coverage_data[, "500x"]) #Turn coverage also to character
+    sample_coverage_data[, coverage_level] <- sample_coverage_data[, coverage_level] + 0.00000001 #Add a very small number to round up 0.05, 0.15 etc in MS excel way
+    sample_coverage_data[, coverage_level] <- round(sample_coverage_data[, coverage_level], 1)
+    sample_coverage_data[, coverage_level] <- as.character(sample_coverage_data[, coverage_level]) #Turn coverage also to character
     sample_coverage_data <- sample_coverage_data[order(sample_coverage_data$Gene), ]
-    sample_coverage_data <- sample_coverage_data[, c("Gene", "500x")]
+    sample_coverage_data <- sample_coverage_data[, c("Gene", coverage_level)]
 
     return (sample_coverage_data)
   }
@@ -488,22 +488,21 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file)
 # ---------------------------------------------------------------------------------
 # Generate sample gene coverage table (depending on the report type)
 # ---------------------------------------------------------------------------------
-returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data)
+returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data, coverage_level)
 {
   if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
   {
 
     sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_v4_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
-    sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-    colnames(sample_coverage_sub_all)[4] <- "Coverage at >500x (%)"
 
     #Prepare data for display
     coverage_data_sub <- cbind(sample_coverage_sub_all[1:27, ], sample_coverage_sub_all[28:54, ], sample_coverage_sub_all[55:81, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "500x3")
+    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
 
     return (coverage_data_sub)
   }
@@ -511,16 +510,15 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_v4_genes)
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
-    sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
     sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
-    colnames(sample_coverage_sub_no_ddx41)[4] <- "Coverage at >500x (%)"
 
     #Prepare data for display
     sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA, NA))
     coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:27, ], sample_coverage_sub_no_ddx41[28:54, ], sample_coverage_sub_no_ddx41[55:81, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "500x3")
+    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
 
     return (coverage_data_sub)
   }
@@ -528,16 +526,15 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_mpn_dx <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$MPN_genes)
     sample_coverage_sub_mpn_dx <- base::merge(sample_coverage_sub_mpn_dx, coverage_data)
-    sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[, c("Gene", "Transcript", "Targeted exons", "500x")]
+    sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[order(sample_coverage_sub_mpn_dx$Gene), ]
-    colnames(sample_coverage_sub_mpn_dx)[4] <- "Coverage at >500x (%)"
 
     #Prepare data for display
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA, NA))
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA, NA))
     coverage_data_sub <- cbind(sample_coverage_sub_mpn_dx[1:8, ], sample_coverage_sub_mpn_dx[9:16, ], sample_coverage_sub_mpn_dx[17:24, ])
-    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "500x", "Gene2", "Transcript2", "Targeted exons2", "500x2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "500x3")
+    colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
 
     return (coverage_data_sub)
   }
@@ -545,8 +542,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "Coverage")]
 
     return (sample_coverage_sub_sg)
   }
@@ -554,8 +550,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% vc_gene)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "500x")]
-    colnames(sample_coverage_sub_sg)[4] <- "Coverage at >500x (%)"
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "Coverage")]
 
     return (sample_coverage_sub_sg)
   }

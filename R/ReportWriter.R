@@ -188,11 +188,16 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
 {
   data <-  getSampleInfo(con_pathOS, seqrun, sample_accession)
 
+  #coverage level
+  index <- which(names(report_config$coverage_level) == data$panel)
+  coverage_level <- unlist(report_config$coverage_level[index])
+
   #check for hgvsg format and give an error
   if (nrow(data) != 0)
   {
     reportInfo$sample_exists <- T
-    coverageData <- getCoverageData(seqrun, sample_accession, path_gene_coverage_file)
+
+    coverageData <- getCoverageData(seqrun, sample_accession, path_gene_coverage_file, coverage_level)
 
     if (nrow(coverageData) != 0)
     {
@@ -211,6 +216,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
       reportInfo$dob <- formatDate(data$dob)
       reportInfo$gender <- data$sex
       reportInfo$panel <- data$panel
+      reportInfo$coverage_level <- coverage_level
 
       reportInfo$coverage_data <- coverageData
 
@@ -794,11 +800,12 @@ loadVariants <- function(con_pathOS, samples, seqrun)
 #' @param con_pathOS PathOS database connection
 #' @param samples vector of sample accessions
 #' @param seqrun seqrun
+#' @param report_config report config variables
 #'
 #' @return a list of reportInfo objects one per sample (named list)
 #'
 #' @export
-loadPathOSData <- function(con_pathOS, samples, seqrun)
+loadPathOSData <- function(con_pathOS, samples, seqrun, report_config)
 {
   lst_reportInfo <- list()
 
@@ -819,6 +826,10 @@ loadPathOSData <- function(con_pathOS, samples, seqrun)
   data <- dbGetQuery(con_pathOS, query)
   data <- data[!duplicated(data), ]
 
+  #coverage level
+  index <- which(names(report_config$coverage_level) == unique(data$panel))
+  coverage_level <- unlist(report_config$coverage_level[index])
+
   #Create a named list per sample and add to the list
   for (i in 1:nrow(data))
   {
@@ -837,6 +848,7 @@ loadPathOSData <- function(con_pathOS, samples, seqrun)
     reportInfo$dob <- formatDate(dataItem$dob)
     reportInfo$gender <- dataItem$sex
     reportInfo$panel <- dataItem$panel
+    reportInfo$coverage_level <- coverage_level
 
     lst_reportInfo[[i]] <- reportInfo
   }
@@ -1182,8 +1194,8 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     #generate the coverage table and format
     if (reportInfo$report_type != "FAIL")
     {
-      data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub)
-      coverage_table <- coverageTableThemed(data_coverage)
+      data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub, reportInfo$coverage_level)
+      coverage_table <- coverageTableThemed(data_coverage, reportInfo$coverage_level)
     }
     else
     {

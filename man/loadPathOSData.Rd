@@ -5,7 +5,7 @@
 \title{Load information in PathOS DB to prepare for saving a subset of samples of a seqrun
 Used by NVD Identifier}
 \usage{
-loadPathOSData(con_pathOS, samples, seqrun)
+loadPathOSData(con_pathOS, samples, seqrun, report_config)
 }
 \arguments{
 \item{con_pathOS}{PathOS database connection}
@@ -13,6 +13,8 @@ loadPathOSData(con_pathOS, samples, seqrun)
 \item{samples}{vector of sample accessions}
 
 \item{seqrun}{seqrun}
+
+\item{report_config}{report config variables}
 }
 \value{
 a list of reportInfo objects one per sample (named list)
