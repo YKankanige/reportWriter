@@ -490,10 +490,10 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_le
 # ---------------------------------------------------------------------------------
 returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data, coverage_level)
 {
-  if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
+  if (report_type %in% c("AHD", "AHD_DDX41"))
   {
 
-    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_v4_genes)
+    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
@@ -506,9 +506,9 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("AH_v4", "AH_cfDNA_v4"))
+  else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_v4_genes)
+    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
@@ -564,9 +564,9 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverage_data)
 {
 
-  if (report_type %in% c("AHD_v4", "AHD_DDX41_v4"))
+  if (report_type %in% c("AHD", "AHD_DDX41"))
   {
-    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_v4_genes)
+    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -577,9 +577,9 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
 
     return (coverage_data_sub)
   }
-  else if (report_type %in% c("AH_v4", "AH_cfDNA_v4"))
+  else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_v4_genes)
+    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
     sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
@@ -628,7 +628,7 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
 # Add clinical interpretation and results summary of negative reports to template
 # ---------------------------------------------------------------------------------
 negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
-  if ((reportInfo$report_template != "AH_cfDNA_v4") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
+  if ((reportInfo$report_template != "AH_cfDNA") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
@@ -640,7 +640,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
   }
-  else if (reportInfo$report_template == "AH_cfDNA_v4")
+  else if (reportInfo$report_template == "AH_cfDNA")
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
 
@@ -666,7 +666,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 # ---------------------------------------------------------------------------------
 variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
-  if (reportInfo$report_template == "AHD_DDX41_v4")#This report has 4 clinical interpretation lines
+  if (reportInfo$report_template == "AHD_DDX41")#This report has 4 clinical interpretation lines
   {
     if (grepl("\n\n", reportInfo$clinical_interpretation_txt_var)) #multiple lines to break
     {
