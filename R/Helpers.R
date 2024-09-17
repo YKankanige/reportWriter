@@ -542,7 +542,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "Coverage")]
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
 
     return (sample_coverage_sub_sg)
   }
@@ -550,7 +550,7 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   {
     sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% vc_gene)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
-    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", "Coverage")]
+    sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
 
     return (sample_coverage_sub_sg)
   }
