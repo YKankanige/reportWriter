@@ -1258,7 +1258,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   {
     report_template <- variantsReportResultsSection(report_template, reportInfo, report_config)
   }
-  else #failed
+  else if ((reportInfo$report_template != "SGVC") && (reportInfo$report_template != "SG_HAVCR2"))#failed
   {
     results_summary <- trimws(reportInfo$results_summary_dna_rna, which="both")
 
