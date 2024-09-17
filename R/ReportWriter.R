@@ -1211,7 +1211,9 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   else if ((template == "AHD_DDX41") && (reportInfo$report_type != "VAR"))
     template <- "AHD"
 
-  template_name <- paste0(assay_version, "_", template, "_", reportInfo$report_type, ".docx")
+  template_name <- paste0(template, "_", reportInfo$report_type, ".docx")
+  if (!is.null(assay_version))
+    template_name <- paste0(assay_version, "_", template, "_", reportInfo$report_type, ".docx")
 
   report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
 
