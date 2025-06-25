@@ -1,8 +1,8 @@
 Package: reportWriter
 Type: Package
 Title: Script for loading, saving and generating reports for QIASeq panel
-Version: 0.1.3
-Date: 18/04/2023
+Version: 0.1.4
+Date: 19/06/2025
 Author: Yamuna Kankanige
 Maintainer: Yamuna Kankanige <yamuna.kankanige@petermac.org>
 Description: Functions for loading sample information from PathOS database, generating word template reports, saving data to Report builder database and loading data from Report builder database.

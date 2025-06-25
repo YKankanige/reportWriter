@@ -1,9 +1,10 @@
-####################################################################################
-# Table themes for displaying and writing
-####################################################################################
-# ---------------------------------------------------------------------------------
+******************************************************************************************************
+# Table themes for displaying and writing ----
+  ****************************************************************************************************
+# **********************************************************************************
+## coverageTableThemed ----
 # Gene coverage table style
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 coverageTableThemed <- function(dataframe, coverage_level) {
   flextable::set_flextable_defaults(font.size=6, font.family="Arial", na_str=" ", nan_str=" ")
 
@@ -80,10 +81,11 @@ coverageTableThemed <- function(dataframe, coverage_level) {
   return (table)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## coverageTableThemedFail ----
 # Coverage table for FAILs
 # Fails wont have the coverage numbers but other info will be there
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 coverageTableThemedFail <- function(dataframe) {
   flextable::set_flextable_defaults(font.size=6, font.family = "Arial", na_str=" ", nan_str=" ")
 
@@ -155,9 +157,10 @@ coverageTableThemedFail <- function(dataframe) {
   return (table)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## variantsTableThemed ----
 # Reported Variants table style
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 variantsTableThemed <- function(dataframe, clinical_significance_header, report_writer_config) {
 
   #Allow creation of the table without entries
@@ -229,9 +232,10 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   return (table)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## variantsTableThemedSG ----
 # Reported Variants table style for SG_HAVCR2 and SGVC report templates
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 variantsTableThemedSG <- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
   #Allow creation of the table without entries
   if (is.null(dataframe))
@@ -293,9 +297,10 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   return (table)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## variantsTableThemedRNA ----
 # Reported fusions table style for RNA_v1 report templates
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 variantsTableThemedRNA<- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
 
   #Allow creation of the table without entries
@@ -351,12 +356,13 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
 }
 
 
-####################################################################################
-# Fetch and format data
-####################################################################################
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+# Fetch and format data ----
+# **********************************************************************************
+# **********************************************************************************
+## getSampleInfo ----
 # Fetch sample info from pathos database
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 getSampleInfo <- function(con_pathOS, seqrun, sample_accession)
 {
   seqrun <- trimws(seqrun, which="both")
@@ -384,9 +390,10 @@ getSampleInfo <- function(con_pathOS, seqrun, sample_accession)
   return(data)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## loadReportInformation ----
 # Load report information to reportInfo object from the data returned from DB query
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer_config)
 {
   reportInfo$report_template <- report_data$Template
@@ -456,9 +463,10 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   return (reportInfo)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## getCoverageData ----
 # Generate sample gene coverage table (depending on the report type)
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_level)
 {
   seqrun <- trimws(seqrun, which="both")
@@ -485,9 +493,10 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_le
   return (data.frame())
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## returnCoverageTable ----
 # Generate sample gene coverage table (depending on the report type)
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data, coverage_level)
 {
   if (report_type %in% c("AHD", "AHD_DDX41"))
@@ -558,9 +567,10 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
   return(NULL)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## returnCoverageTableFail ----
 # Generate panel coverage info for failed reports
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverage_data)
 {
 
@@ -621,12 +631,13 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
   return(NULL)
 }
 
-####################################################################################
-# Report generation functions
-####################################################################################
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+# Report generation functions ----
+# **********************************************************************************
+# **********************************************************************************
+## negativeReportResultsSection ----
 # Add clinical interpretation and results summary of negative reports to template
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
   if ((reportInfo$report_template != "AH_cfDNA") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
@@ -661,9 +672,10 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
   return (report)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## variantsReportResultsSection ----
 # Add clinical interpretation and results summary of variants reports to template
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
   if (reportInfo$report_template == "AHD_DDX41")#This report has 4 clinical interpretation lines
@@ -716,9 +728,10 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   return(report)
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## replacepnSelClinicalInterpret ----
 # function to replace clinical interpretation select
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 replacepnSelClinicalInterpret <- function(report, label1, label2, sel_clinical_interpretation, txt_clinical_interpretation) {
   if (sel_clinical_interpretation != " ")
   {
@@ -734,12 +747,13 @@ replacepnSelClinicalInterpret <- function(report, label1, label2, sel_clinical_i
   return (report)
 }
 
-####################################################################################
-# Other utility functions
-####################################################################################
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+# Other utility functions ----
+# **********************************************************************************
+# **********************************************************************************
+## formatDate ----
 # Convert all dates to %d-%b%-%Y format
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 formatDate <- function(date_str)
 {
   date <- as.Date(date_str)
@@ -747,17 +761,19 @@ formatDate <- function(date_str)
   return (format(date, "%d-%b-%Y"))
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## formatDateDB ----
 # Convert all dates to %Y-%m-%d format
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 formatDateDB <- function(date)
 {
   return (format(date, "%Y-%m-%d"))
 }
 
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
+## escapeQuote ----
 # Quotations in text breaks save queries because of "s used in paste0
-# ---------------------------------------------------------------------------------
+# **********************************************************************************
 escapeQuote <- function(val)
 {
   val <- gsub('"', '""', val)
