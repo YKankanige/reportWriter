@@ -199,7 +199,7 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
 
     coverageData <- getCoverageData(seqrun, sample_accession, path_gene_coverage_file, coverage_level)
 
-    if (nrow(coverageData) != 0)
+    if (grepl("RNAFusion", data$panel) || nrow(coverageData) != 0)
     {
       #Update the reactive variable
       reportInfo$initialized <- T
