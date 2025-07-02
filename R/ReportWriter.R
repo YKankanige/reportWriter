@@ -1186,7 +1186,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   index <- which(names(report_config$report_panel_version) == reportInfo$panel)
   assay_version <- unlist(report_config$report_panel_version[index])
 
-  if (reportInfo$report_template != "RNA_v1")
+  if (reportInfo$report_template != "RNA")
   {
     coverage_data_sub <- subset(coverage_data, coverage_data$Assay == assay_version)
     coverage_data_sub <- subset(coverage_data_sub, select=-c(Assay))
@@ -1312,7 +1312,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Requester_Code, reportInfo$requester_code, warn=F)
 
   #Add coverage table
-  if (reportInfo$report_template != "RNA_v1")
+  if (reportInfo$report_template != "RNA")
   {
     if (reportInfo$report_type != "FAIL")
       report_template <- officer::cursor_reach(report_template, report_config$Coverage_table_text)
@@ -1329,7 +1329,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   #Add variants table
   if (reportInfo$report_type == "VAR")
   {
-    if ((reportInfo$report_template != "RNA_v1"))
+    if ((reportInfo$report_template != "RNA"))
     {
       if (!((reportInfo$report_template == "SG_HAVCR2") || (reportInfo$report_template == "SGVC")))
         variants_table <- variantsTableThemed(reportInfo$variants, reportInfo$clinical_context, report_config)

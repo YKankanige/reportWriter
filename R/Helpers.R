@@ -299,7 +299,7 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
 
 # **********************************************************************************
 ## variantsTableThemedRNA ----
-# Reported fusions table style for RNA_v1 report templates
+# Reported fusions table style for RNA report templates
 # **********************************************************************************
 variantsTableThemedRNA<- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
 
@@ -435,7 +435,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   #Fetch variants and fusions in case of a VAR report
   if (report_data$Type == "VAR")
   {
-    if (reportInfo$report_template != "RNA_v1")
+    if (reportInfo$report_template != "RNA")
     {
       query <- paste0("SELECT * FROM ReportVariant
                 WHERE ReportID = '", report_data$ReportID, "';")
@@ -706,7 +706,7 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   }
 
   #results summary
-  if (reportInfo$report_template == "RNA_v1")
+  if (reportInfo$report_template == "RNA")
   {
     results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual)
     results_summary <- trimws(results_summary, which="both")
