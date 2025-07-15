@@ -475,7 +475,7 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_le
 
   if (file.exists(file_name))
   {
-    sample_coverage_data <- read.table(file_name, stringsAsFactors=F, header=T, sep="\t")
+    sample_coverage_data <- read.table(file_name, stringsAsFactors=F, header=T, sep="\t", quote = "")
     colnames(sample_coverage_data) <- sub("^X", "", colnames(sample_coverage_data))
 
     #PLS CHECK, QUICK FIX FOR MFSD11;SRSF2
