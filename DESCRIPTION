@@ -1,7 +1,7 @@
 Package: reportWriter
 Type: Package
 Title: Script for loading, saving and generating reports for QIASeq panel
-Version: 0.1.4
+Version: 0.1.5
 Date: 19/06/2025
 Author: Yamuna Kankanige
 Maintainer: Yamuna Kankanige <yamuna.kankanige@petermac.org>

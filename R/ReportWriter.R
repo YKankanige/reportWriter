@@ -1194,7 +1194,15 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     #generate the coverage table and format
     if (reportInfo$report_type != "FAIL")
     {
-      data_coverage <- returnCoverageTable(reportInfo$coverage_data, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub, reportInfo$coverage_level)
+      coverage_values <- reportInfo$coverage_data
+      #subset coverage data for OP2 since the gene name format is different
+      if (reportInfo$panel == "Pathology_hyb_AHDT_2_OP")
+      {
+        coverage_values <- subset(coverage_values, coverage_values$Gene %in% paste0(coverage_data_sub$Gene, "_CODING"))
+        coverage_values$Gene <- sub("_CODING", "", coverage_values$Gene)
+      }
+
+      data_coverage <- returnCoverageTable(coverage_values, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub, reportInfo$coverage_level)
       coverage_table <- coverageTableThemed(data_coverage, reportInfo$coverage_level)
     }
     else
