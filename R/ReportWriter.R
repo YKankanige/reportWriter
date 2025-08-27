@@ -1171,6 +1171,47 @@ matchingPatientSamples <- function(con_pathOS, reportInfo, report_config)
 }
 
 
+#' Generate sample gene coverage table (depending on the report type)
+#'
+#' @param seqrun seqrun
+#' @param sample sample name
+#' @param path_gene_coverage_file file path to the run folders
+#' @param coverage_level coverage level used
+#'
+#' @return report_template which is a word document template
+#'
+#' @export
+getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_level)
+{
+  seqrun <- trimws(seqrun, which="both")
+  sample <- trimws(sample, which="both")
+  file_name <- paste0(path_gene_coverage_file, seqrun,"/", sample, "/QC/", sample, "_gene_coverage.tsv")
+
+  sample_coverage_data <- data.frame()
+  if (file.exists(file_name))
+  {
+    sample_coverage_data <- read.table(file_name, stringsAsFactors=F, header=T, sep="\t", quote = "")
+    colnames(sample_coverage_data) <- sub("^X", "", colnames(sample_coverage_data))
+
+    #PLS CHECK, QUICK FIX FOR MFSD11;SRSF2
+    sample_coverage_data$Gene[sample_coverage_data$Gene == "MFSD11;SRSF2"] <- "SRSF2"
+
+    sample_coverage_data[, coverage_level] <- sample_coverage_data[, coverage_level] + 0.00000001 #Add a very small number to round up 0.05, 0.15 etc in MS excel way
+    sample_coverage_data[, coverage_level] <- round(sample_coverage_data[, coverage_level], 1)
+    sample_coverage_data[, coverage_level] <- as.character(sample_coverage_data[, coverage_level]) #Turn coverage also to character
+    sample_coverage_data <- sample_coverage_data[order(sample_coverage_data$Gene), ]
+    sample_coverage_data <- sample_coverage_data[, c("Gene", coverage_level)]
+  }
+  else
+  {
+    sample_coverage_data <- data.frame(Gene=character(0), coverage=numeric(0))
+    colnames(sample_coverage_data)[2] <- paste0("X", coverage_level)
+  }
+
+  return (sample_coverage_data)
+}
+
+
 #' Function to generate report template using list object reportInfo
 #'
 #' @param reportInfo Named list from report builder/automatic generation tools with sample and report information
@@ -1195,12 +1236,9 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     if (reportInfo$report_type != "FAIL")
     {
       coverage_values <- reportInfo$coverage_data
-      #subset coverage data for OP2 since the gene name format is different
+      #Adjust coverage data for OP2 since the gene name format is different
       if (reportInfo$panel == "Pathology_hyb_AHDT_2_OP")
-      {
-        coverage_values <- subset(coverage_values, coverage_values$Gene %in% paste0(coverage_data_sub$Gene, "_CODING"))
         coverage_values$Gene <- sub("_CODING", "", coverage_values$Gene)
-      }
 
       data_coverage <- returnCoverageTable(coverage_values, reportInfo$report_template, reportInfo$vc_gene, report_config, coverage_data_sub, reportInfo$coverage_level)
       coverage_table <- coverageTableThemed(data_coverage, reportInfo$coverage_level)

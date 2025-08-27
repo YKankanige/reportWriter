@@ -463,35 +463,6 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
   return (reportInfo)
 }
 
-# **********************************************************************************
-## getCoverageData ----
-# Generate sample gene coverage table (depending on the report type)
-# **********************************************************************************
-getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_level)
-{
-  seqrun <- trimws(seqrun, which="both")
-  sample <- trimws(sample, which="both")
-  file_name <- paste0(path_gene_coverage_file, seqrun,"/", sample, "/QC/", sample, "_gene_coverage.tsv")
-
-  if (file.exists(file_name))
-  {
-    sample_coverage_data <- read.table(file_name, stringsAsFactors=F, header=T, sep="\t", quote = "")
-    colnames(sample_coverage_data) <- sub("^X", "", colnames(sample_coverage_data))
-
-    #PLS CHECK, QUICK FIX FOR MFSD11;SRSF2
-    sample_coverage_data$Gene[sample_coverage_data$Gene == "MFSD11;SRSF2"] <- "SRSF2"
-
-    sample_coverage_data[, coverage_level] <- sample_coverage_data[, coverage_level] + 0.00000001 #Add a very small number to round up 0.05, 0.15 etc in MS excel way
-    sample_coverage_data[, coverage_level] <- round(sample_coverage_data[, coverage_level], 1)
-    sample_coverage_data[, coverage_level] <- as.character(sample_coverage_data[, coverage_level]) #Turn coverage also to character
-    sample_coverage_data <- sample_coverage_data[order(sample_coverage_data$Gene), ]
-    sample_coverage_data <- sample_coverage_data[, c("Gene", coverage_level)]
-
-    return (sample_coverage_data)
-  }
-
-  return (data.frame())
-}
 
 # **********************************************************************************
 ## returnCoverageTable ----
@@ -501,7 +472,6 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 {
   if (report_type %in% c("AHD", "AHD_DDX41"))
   {
-
     sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
