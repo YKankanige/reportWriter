@@ -1205,7 +1205,7 @@ getCoverageData <- function(seqrun, sample, path_gene_coverage_file, coverage_le
   else
   {
     sample_coverage_data <- data.frame(Gene=character(0), coverage=numeric(0))
-    colnames(sample_coverage_data)[2] <- paste0("X", coverage_level)
+    colnames(sample_coverage_data)[2] <- coverage_level
   }
 
   return (sample_coverage_data)
