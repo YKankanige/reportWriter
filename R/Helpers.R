@@ -213,7 +213,7 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   table <- flextable::border_inner_v(table, part="all", border=small_border)
 
   #Colour rows based on Assumed origin (if gemline different color)
-  index_germline <- which(dataframe$AssumedOrigin == report_writer_config$assumed_origin_choices[6])
+  index_germline <- which(grepl("^Germline( |$)", dataframe$AssumedOrigin))
   if (length(index_germline) == 0)
     table <- flextable::bg(table, bg="#CFCCD6", part="body")
   else
@@ -444,7 +444,7 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
       variants <- variants[order(variants$ReportVariantID, decreasing=F), ]
       variants$VRF[variants$VRF == "NA"] <- NA
       variants["VRF"] <- round(as.numeric(variants$VRF))
-      variants["AssumedOrigin"] <- factor(variants$AssumedOrigin, levels=report_writer_config$assumed_origin_choices)
+      variants["AssumedOrigin"] <- factor(variants$AssumedOrigin, levels=names(report_writer_config$assumed_origin_choices))
 
       reportInfo$variants <- variants
 

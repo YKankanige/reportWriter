@@ -286,7 +286,7 @@ getVariantInfo <- function(con_pathOS, seqrun, sample_accession, report_config)
   df <- data.frame(ReportVariantID=NA, ReportID=NA, AssumedOrigin=NA, Gene=data$gene, Variant=data$variant, VRF=data$var_freq, ClinicalSignificance=NA, stringsAsFactors=F)
   df <- df[order(df$VRF, decreasing=T), ]
   df["VRF"] <- round(as.numeric(df$VRF))
-  df["AssumedOrigin"] <- factor(df$AssumedOrigin, levels=report_config$assumed_origin_choices)
+  df["AssumedOrigin"] <- factor(df$AssumedOrigin, levels=names(report_config$assumed_origin_choices))
 
   return (df)
 }
@@ -617,7 +617,7 @@ saveReport <- function(con_rb, reportInfo, report_config)
     existingVariants <- existingVariants[order(existingVariants$ReportVariantID, decreasing=F), ]
     existingVariants$VRF[existingVariants$VRF == "NA"] <- NA
     existingVariants["VRF"] <- round(as.numeric(existingVariants$VRF))
-    existingVariants["AssumedOrigin"] <- factor(existingVariants$AssumedOrigin, levels=report_config$assumed_origin_choices)
+    existingVariants["AssumedOrigin"] <- factor(existingVariants$AssumedOrigin, levels=names(report_config$assumed_origin_choices))
 
     changedVariants <- reportInfo$variants
     if (is.null(changedVariants))
