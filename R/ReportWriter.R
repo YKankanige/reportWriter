@@ -1252,17 +1252,17 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
 
   #Read the relevant template
   template <- reportInfo$report_template
-  if (template == "MDX_MPN")
-    template <- "MDX"
-  else if ((template == "AHD_DDX41") && (reportInfo$report_type != "VAR"))
-    template <- "AHD"
+  if ((template == "MDX_MPN") || (template == "MDX") || (template == "AH") || (template == "AHD") || (template == "AH_cfDNA") ||
+      (template == "AHD_DDX41"))
+    template <- "AH_MDX"
 
   template_name <- paste0(template, "_", reportInfo$report_type, ".docx")
   if (!is.null(assay_version))
     template_name <- paste0(assay_version, "_", template, "_", reportInfo$report_type, ".docx")
 
   print(paste0("Template name ", template_name))
-  report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
+  #report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
+  report_template <- officer::read_docx(paste0("E:/Work/Reporting apps/Release 1.5/New/", template_name))
 
   #replace variable's in the template
   #Patient info header
@@ -1324,26 +1324,21 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   {
     report_template <- officer::body_replace_all_text(report_template, report_config$Correlative_Morphology, reportInfo$correlative_morphology)
   }
+  else
+  {
+    report_template <- officer::body_replace_all_text(report_template, report_config$Correlative_Morphology, "N/A")
+  }
 
-  #FLT3_ITD and DDX41 germline variant analysis in reports with variants
+  #Germline variant analysis in reports with variants
   if (reportInfo$report_type == "VAR")
   {
-    if (reportInfo$report_template %in% c("AH", "AHD", "AHD_DDX41"))
-    {
-      if (identical(reportInfo$flt3_itd, report_config$section_Delete))
-      {
-        report_template <- officer::cursor_reach(report_template, report_config$Flt3_Itd)
-        report_template <- officer::body_remove(report_template)
-      }
-      else
-        report_template <- officer::body_replace_all_text(report_template, report_config$Flt3_Itd, reportInfo$flt3_itd)
-    }
-
-    if ((reportInfo$report_template == "AHD_DDX41") || (reportInfo$report_template == "SGVC"))
+    if ((reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "RNA"))
     {
       if (identical(reportInfo$germline_variant_analysis, report_config$section_Delete))
       {
         report_template <- officer::cursor_reach(report_template, report_config$Germline_variant_analysis)
+        report_template <- officer::body_remove(report_template)
+        report_template <- officer::cursor_reach(report_template, report_config$Further_Results_Section)
         report_template <- officer::body_remove(report_template)
       }
       else
@@ -1358,13 +1353,32 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Lab_No, reportInfo$sample_accession, warn=F)
   report_template <- officer::footers_replace_all_text(report_template, report_config$Requester_Code, reportInfo$requester_code, warn=F)
 
+  #Report type
+  if (reportInfo$report_template %in% c("MDX_MPN", "MDX", "AHD", "AHD_DDX41", "AH", "AH_cfDNA" ))
+  {
+    test_description <- unlist(report_config$test_description)[which(names(report_config$test_description) == reportInfo$report_template)]
+    report_template <- officer::body_replace_all_text(report_template, report_config$Test_Description, test_description)
+
+    report_type_header <- unlist(report_config$report_type_header)[which(names(report_config$report_type_header) == reportInfo$report_template)]
+    report_template <- officer::body_replace_all_text(report_template, report_config$Report_Template_Type, report_type_header)
+
+    report_type_footer <- unlist(report_config$report_type_footer)[which(names(report_config$report_type_footer) == reportInfo$report_template)]
+    report_template <- officer::footers_replace_all_text(report_template, report_config$Report_Template_Type_Footer, report_type_footer, warn=F)
+  }
+
+  #cfDNA
+  if (reportInfo$report_template == "AH_cfDNA")
+    report_template <- officer::body_replace_all_text(report_template, report_config$Test_Limitations_cfDNA, report_config$Test_Limitations_cfDNA_text)
+  else if (reportInfo$report_template %in% c("AH", "AHD", "AHD_DDX41", "MDX", "MDX_MPN"))
+  {
+    report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_cfDNA)
+    report_template <- officer::body_remove(report_template)
+  }
+
   #Add coverage table
   if (reportInfo$report_template != "RNA")
   {
-    if (reportInfo$report_type != "FAIL")
-      report_template <- officer::cursor_reach(report_template, report_config$Coverage_table_text)
-    else
-      report_template <- officer::cursor_reach(report_template, report_config$Panel_table_text)
+    report_template <- officer::cursor_reach(report_template, report_config$Panel_table_text)
 
     #Align the table left in SG reports and center in others
     table_align <- "center"
@@ -1384,7 +1398,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
         variants_table <- variantsTableThemedSG(reportInfo$variants, reportInfo$clinical_context, report_config, reportInfo$report_template)
 
       report_template <- officer::cursor_reach(report_template, report_config$Variants_table_text)
-      report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="before")
+      report_template <- flextable::body_add_flextable(report_template, variants_table, align="center", pos="after")
     }
     else #RNA fusion template
     {
@@ -1400,19 +1414,18 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     if (reportInfo$clinical_context_report != "")
     {
       file_name <- paste0(gsub(" ", "_", reportInfo$clinical_context_report), ".docx")
-      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context)
-      report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Context, "")
+      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context_Page)
+      report_template <- officer::body_replace_all_text(report_template, report_config$Clinical_Context_Page, "")
       #report_template <- officer::body_add_break(report_template)
       report_template <- officer::body_add_docx(report_template, src=system.file("clinical_context", file_name, package = "reportWriter", mustWork=T), pos="on")
     }
     else
     {
       #Clinical context not chosen
-      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context)
+      report_template <- officer::cursor_reach(report_template, report_config$Clinical_Context_Page)
       report_template <- officer::body_remove(report_template)
     }
   }
 
   return (report_template)
 }
-

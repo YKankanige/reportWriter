@@ -6,35 +6,39 @@
 # Gene coverage table style
 # **********************************************************************************
 coverageTableThemed <- function(dataframe, coverage_level) {
-  flextable::set_flextable_defaults(font.size=6, font.family="Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=5.5, font.family="Aptos", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
 
   #Column names
   if (ncol(dataframe) == 4)
     table <- flextable::set_header_labels(table,
-                               values = list(
-                                 "Gene" = "Gene",
-                                 "Transcript" = "Transcript",
-                                 "Targeted exons" = "Targeted exons",
-                                 "Coverage" = paste0("Coverage at >", coverage_level, " (%)")
-                               ))
+                                          values = list(
+                                            "Gene" = "GENE",
+                                            "Transcript" = "TRANSCRIPT",
+                                            "Targeted exons" = "TARGETED REGION",
+                                            "Coverage" = "%"
+                                          ))
   else
     table <- flextable::set_header_labels(table,
-                               values = list(
-                                 "Gene" = "Gene",
-                                 "Transcript" = "Transcript",
-                                 "Targeted exons" = "Targeted exons",
-                                 "Coverage1" = paste0("Coverage at >", coverage_level, " (%)"),
-                                 "Gene2"= "Gene",
-                                 "Transcript2" = "Transcript",
-                                 "Targeted exons2" = "Targeted exons",
-                                 "Coverage2" = paste0("Coverage at >", coverage_level, " (%)"),
-                                 "Gene3"= "Gene",
-                                 "Transcript3" = "Transcript",
-                                 "Targeted exons3" = "Targeted exons",
-                                 "Coverage3" = paste0("Coverage at >", coverage_level, " (%)")
-                               ))
+                                          values = list(
+                                            "Gene" = "GENE",
+                                            "Transcript" = "TRANSCRIPT",
+                                            "Targeted exons" = "TARGETED REGION",
+                                            "Coverage1" = "%",
+                                            "Gene2"= "GENE",
+                                            "Transcript2" = "TRANSCRIPT",
+                                            "Targeted exons2" = "TARGETED REGION",
+                                            "Coverage2" = "%",
+                                            "Gene3"= "GENE",
+                                            "Transcript3" = "TRANSCRIPT",
+                                            "Targeted exons3" = "TARGETED REGION",
+                                            "Coverage3" = "%",
+                                            "Gene4"= "GENE",
+                                            "Transcript4" = "TRANSCRIPT",
+                                            "Targeted exons4" = "TARGETED REGION",
+                                            "Coverage4" = "%"
+                                          ))
 
 
   #padding and colors
@@ -42,10 +46,8 @@ coverageTableThemed <- function(dataframe, coverage_level) {
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
-  table <- flextable::bg(table, bg="#411E75", part="header")
-  table <- flextable::color(table, color="white", part="header")
-  table <- flextable::bold(table, part="header")
-  table <- flextable::bg(table, bg="#E8E7EC", part="body")
+  table <- flextable::bg(table, bg="#DDD9E8", part="header")
+  table <- flextable::bg(table, bg="#DDD9E8", part="body")
 
   #text alignment
   table <- flextable::valign(table, valign="top", part="all")
@@ -63,17 +65,19 @@ coverageTableThemed <- function(dataframe, coverage_level) {
   {
     #width
     table <- flextable::width(table, j=c(1, 2, 3, 4),
-                   width=c(1.18, 1.88, 1.74, 1.2), unit="cm")
-
+                              width=c(1.24, 1.74, 1.21, 0.57), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
+
+    table <- flextable::bold(table, part="body", j=1)
   }
   else
   {
-    table <- flextable::vline(table, j=c(4,8), border=big_border)
-
+    table <- flextable::vline(table, j=c(4, 8, 12), border=big_border)
+    table <- flextable::bold(table, part="body", j=c(1, 5, 9, 13))
     #width
-    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-                   width=c(1.18, 1.55, 1.87, 1.2, 1.33, 1.9, 1.87, 1.2, 1.33, 1.9, 1.7, 1.1), unit="cm")
+    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
+                              width=c(1.06, 1.4, 1.21, 0.57, 1, 1.74, 1.19, 0.57, 1.24, 1.74, 1.2, 0.57,
+                                      1.15, 1.74, 1.19, 0.53), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
   table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
@@ -87,31 +91,34 @@ coverageTableThemed <- function(dataframe, coverage_level) {
 # Fails wont have the coverage numbers but other info will be there
 # **********************************************************************************
 coverageTableThemedFail <- function(dataframe) {
-  flextable::set_flextable_defaults(font.size=6, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=5.5, font.family = "Aptos", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
 
   #Column names
   if (ncol(dataframe) == 3)
     table <- flextable::set_header_labels(table,
-                               values = list(
-                                 "Gene" = "Gene",
-                                 "Transcript" = "Transcript",
-                                 "Targeted exons" = "Targeted exons"
-                               ))
+                                          values = list(
+                                            "Gene" = "GENE",
+                                            "Transcript" = "TRANSCRIPT",
+                                            "Targeted exons" = "TARGETED REGION"
+                                          ))
   else
     table <- flextable::set_header_labels(table,
-                               values = list(
-                                 "Gene" = "Gene",
-                                 "Transcript" = "Transcript",
-                                 "Targeted exons" = "Targeted exons",
-                                 "Gene2"= "Gene",
-                                 "Transcript2" = "Transcript",
-                                 "Targeted exons2" = "Targeted exons",
-                                 "Gene3"= "Gene",
-                                 "Transcript3" = "Transcript",
-                                 "Targeted exons3" = "Targeted exons"
-                               ))
+                                          values = list(
+                                            "Gene" = "GENE",
+                                            "Transcript" = "TRANSCRIPT",
+                                            "Targeted exons" = "TARGETED REGION",
+                                            "Gene2"= "GENE",
+                                            "Transcript2" = "TRANSCRIPT",
+                                            "Targeted exons2" = "TARGETED REGION",
+                                            "Gene3"= "GENE",
+                                            "Transcript3" = "TRANSCRIPT",
+                                            "Targeted exons3" = "TARGETED REGION",
+                                            "Gene4"= "GENE",
+                                            "Transcript4" = "TRANSCRIPT",
+                                            "Targeted exons4" = "TARGETED REGION"
+                                          ))
 
 
   #padding and colors
@@ -119,10 +126,8 @@ coverageTableThemedFail <- function(dataframe) {
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
-  table <- flextable::bg(table, bg="#411E75", part="header")
-  table <- flextable::color(table, color="white", part="header")
-  table <- flextable::bold(table, part="header")
-  table <- flextable::bg(table, bg="#E8E7EC", part="body")
+  table <- flextable::bg(table, bg="#DDD9E8", part="header")
+  table <- flextable::bg(table, bg="#DDD9E8", part="body")
 
   #text alignment
   table <- flextable::valign(table, valign="top", part="all")
@@ -140,16 +145,19 @@ coverageTableThemedFail <- function(dataframe) {
   {
     #width
     table <- flextable::width(table, j=c(1, 2, 3),
-                   width=c(1.18, 1.88, 1.74), unit="cm")
+                              width=c(1.18, 1.88, 1.74), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
+
+    table <- flextable::bold(table, part="body", j=1)
   }
   else
   {
-    table <- flextable::vline(table, j=c(3,6), border=big_border)
-
+    table <- flextable::vline(table, j=c(3,6, 9), border=big_border)
+    table <- flextable::bold(table, part="body", j=c(1, 4, 7, 10))
     #width
-    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                   width=c(1.18, 1.55, 1.87, 1.33, 1.9, 1.9, 1.33, 1.9, 1.7), unit="cm")
+    table <- flextable::width(table, j=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+                              width=c(1.06, 1.4, 1.21, 1, 1.74, 1.19, 1.24, 1.74, 1.2,
+                                      1.15, 1.74, 1.19), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
   }
   table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
@@ -169,65 +177,70 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
 
   dataframe <- dataframe[, c("AssumedOrigin", "Gene", "Variant", "VRF", "ClinicalSignificance")]
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
-  dataframe$Variant <- gsub(" p[.]", "\np.", dataframe$Variant) #make it two lines
-  flextable::set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
+  hgvsp <- str_extract(dataframe$Variant, "p[.].*$")
+  dataframe["VariantInfo"] <- paste0(dataframe$Gene, "\n", hgvsp)
+  dataframe["VariantDetail"] <- paste0(dataframe$Variant, "\nvariant read frequency: ", dataframe$VRF, "%")
+
+  #origin indexes for bg color
+  index_germline <- which(grepl("^Germline", dataframe$AssumedOrigin))
+  index_somatic <- which(grepl("^Somatic", dataframe$AssumedOrigin))
+  index_uncertain <- which(grepl("^Uncertain",dataframe$AssumedOrigin))
+
+  for (i in 1:nrow(dataframe))
+  {
+    table_text <- unlist(report_writer_config$assumed_origin_choices)[which(names(report_writer_config$assumed_origin_choice) == dataframe[i, ]$AssumedOrigin)]
+    if (table_text != "ASSUMED SOMATIC")
+      dataframe[i, ]$VariantDetail <- paste0(dataframe[i, ]$VariantDetail, "\norigin: ", table_text)
+  }
+
+  dataframe <- dataframe[, c("VariantInfo", "VariantDetail", "ClinicalSignificance")]
+  flextable::set_flextable_defaults(font.size=9, font.family="Aptos", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
 
   #Column names
   table <- flextable::set_header_labels(table,
-                             values = list(
-                               "AssumedOrigin" = "ASSUMED ORIGIN",
-                               "Gene" = "GENE",
-                               "Variant" = "VARIANT",
-                               "VRF" = "VRF\n(%)",
-                               "ClinicalSignificance" = paste0("CLINICAL SIGNIFICANCE IN ", clinical_significance_header)
-                             ))
+                                        values = list(
+                                          "VariantInfo" = "VARIANT (OR FINDING)",
+                                          "VariantDetail" = "VARIANT DETAILS",
+                                          "ClinicalSignificance" = paste0("CLINICAL SIGNIFICANCE IN ", clinical_significance_header)
+                                        ))
 
   #padding and colors
   table <- flextable::colformat_double(table, decimal.mark=".", digits=0)
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
-  table <- flextable::bg(table, bg="#411E75", part="header")
-  table <- flextable::color(table, color="white", part="header")
-  table <- flextable::bold(table, part="all")
+  table <- flextable::bg(table, bg="#DDD9E8", part="all")
+  table <- flextable::color(table, color="black", part="header")
+  table <- flextable::color(table, j=1, color="white", part="body")
+  table <- flextable::bold(table,  j=1, part="body")
 
   #text alignment
   table <- flextable::valign(table, valign="center", part="all")
   table <- flextable::align(table, align="left", part="all")
 
   #width
-  table <- flextable::width(table, j=c(1, 2, 3, 4, 5),
-                 width=c(3.48, 2, 4.75, 1, 6.75), unit="cm")
+  table <- flextable::width(table, j=c(1, 2, 3),
+                            width=c(3.93, 9.5, 4.68), unit="cm")
   table <- flextable::set_table_properties(table, layout="fixed", width=1)
   table <- flextable::hrule(table, rule="atleast", part="body")
   table <- flextable::height(table, height=0.74, unit="cm", part="body")
-
   #borders
-  small_border = officer::fp_border(color="white", width=1.8)
-  big_border = officer::fp_border(color="white", width=3)
+  #small_border = officer::fp_border(color="white", width=1.8)
+  big_border = officer::fp_border(color="white", width=4)
 
   table <- flextable::border_remove(table)
-  table <- flextable::border_outer(table, part="all", border=small_border)
-  table <- flextable::border_inner_h(table, part="all", border=small_border)
-  table <- flextable::border_inner_v(table, part="all", border=small_border)
+  table <- flextable::border_outer(table, part="all", border=big_border)
+  table <- flextable::border_inner_h(table, part="all", border=big_border)
+  table <- flextable::border_inner_v(table, part="all", border=big_border)
 
   #Colour rows based on Assumed origin (if gemline different color)
-  index_germline <- which(grepl("^Germline( |$)", dataframe$AssumedOrigin))
-  if (length(index_germline) == 0)
-    table <- flextable::bg(table, bg="#CFCCD6", part="body")
-  else
-  {
-    index_other <- setdiff(c(1:nrow(dataframe)), index_germline)
-    if (length(index_other) != 0)
-      table <- flextable::bg(table, bg="#CFCCD6", part="body", i=index_other)
-    table <- flextable::bg(table, bg="#E8E7EC", part="body", i=index_germline)
-
-    if ((nrow(dataframe) != 1) && (length(index_other) != 0))
-      table <- flextable::hline(table, i=(min(index_germline)-1), border=big_border)
-  }
-
-  table <- flextable::font(table, fontname="Arial", part="header")
+  if (length(index_germline) != 0)
+    table <- flextable::bg(table, bg="#A153A1", part="body", i=index_germline, j=1)
+  if (length(index_somatic) != 0)
+    table <- flextable::bg(table, bg="#5A4287", part="body", i=index_somatic, j=1)
+  if (length(index_uncertain) != 0)
+    table <- flextable::bg(table, bg="#8777AB", part="body", i=index_uncertain, j=1)
 
   return (table)
 }
@@ -247,7 +260,7 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   dataframe["PVariant"] <- str_extract(dataframe$Variant, "p[.].*$")
   dataframe <- dataframe[, c("Gene", "NVariant", "PVariant", "VRF")]
 
-  flextable::set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=9, font.family="Aptos", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
 
@@ -264,9 +277,10 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   table <- flextable::colformat_double(table, decimal.mark=".", digits=0)
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
-  table <- flextable::bg(table, bg="#411E75", part="header")
-  table <- flextable::color(table, color="white", part="header")
-  table <- flextable::bold(table, part="all")
+  table <- flextable::bg(table, bg="#DDD9E8", part="all")
+  table <- flextable::color(table, color="black", part="header")
+  table <- flextable::color(table, j=1, color="white", part="body")
+  table <- flextable::bold(table,  j=1, part="body")
 
   #text alignment
   table <- flextable::valign(table, valign="center", part="all")
@@ -280,19 +294,13 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   table <- flextable::height(table, height=0.74, unit="cm", part="body")
 
   #borders
-  small_border = officer::fp_border(color="white", width=1.8)
   big_border = officer::fp_border(color="white", width=3)
 
   table <- flextable::border_remove(table)
-  table <- flextable::border_outer(table, part="all", border=small_border)
-  table <- flextable::border_inner_h(table, part="all", border=small_border)
-  table <- flextable::border_inner_v(table, part="all", border=small_border)
-  if (report_template == "SGVC")
-    table <- flextable::bg(table, bg="#E8E7EC", part="body")
-  else
-    table <- flextable::bg(table, bg="#CFCCD6", part="body")
-
-  table <- flextable::font(table, fontname="Arial", part="header")
+  table <- flextable::border_outer(table, part="all", border=big_border)
+  table <- flextable::border_inner_h(table, part="all", border=big_border)
+  table <- flextable::border_inner_v(table, part="all", border=big_border)
+  table <- flextable::bg(table, bg="#A153A1", part="body", j=1)
 
   return (table)
 }
@@ -309,7 +317,7 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
 
   dataframe <- dataframe[, c("Fusion", "Breakpoint", "ClinicalSignificance")]
 
-  flextable::set_flextable_defaults(font.size=9, font.family = "Arial", na_str=" ", nan_str=" ")
+  flextable::set_flextable_defaults(font.size=9, font.family="Aptos", na_str=" ", nan_str=" ")
 
   table <- flextable::flextable(dataframe)
 
@@ -325,9 +333,10 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
   table <- flextable::colformat_double(table, decimal.mark=".", digits=0)
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
-  table <- flextable::bg(table, bg="#411E75", part="header")
-  table <- flextable::color(table, color="white", part="header")
-  table <- flextable::bold(table, part="all")
+  table <- flextable::bg(table, bg="#DDD9E8", part="all")
+  table <- flextable::color(table, color="black", part="header")
+  table <- flextable::color(table, j=1, color="white", part="body")
+  table <- flextable::bold(table,  j=1, part="body")
 
   #text alignment
   table <- flextable::valign(table, valign="center", part="all")
@@ -341,16 +350,13 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
   table <- flextable::height(table, height=0.74, unit="cm", part="body")
 
   #borders
-  small_border = officer::fp_border(color="white", width=1.8)
   big_border = officer::fp_border(color="white", width=3)
 
   table <- flextable::border_remove(table)
-  table <- flextable::border_outer(table, part="all", border=small_border)
-  table <- flextable::border_inner_h(table, part="all", border=small_border)
-  table <- flextable::border_inner_v(table, part="all", border=small_border)
-  table <- flextable::bg(table, bg="#CFCCD6", part="body")
-
-  table <- flextable::font(table, fontname="Arial", part="header")
+  table <- flextable::border_outer(table, part="all", border=big_border)
+  table <- flextable::border_inner_h(table, part="all", border=big_border)
+  table <- flextable::border_inner_v(table, part="all", border=big_border)
+  table <- flextable::bg(table, bg="#5A4287", part="body", j=1)
 
   return (table)
 }
@@ -468,26 +474,28 @@ loadReportInformation <- function(con_rb, report_data, reportInfo, report_writer
 ## returnCoverageTable ----
 # Generate sample gene coverage table (depending on the report type)
 # **********************************************************************************
-returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_config, coverage_data, coverage_level)
+returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, report_writer_config, coverage_data, coverage_level)
 {
   if (report_type %in% c("AHD", "AHD_DDX41"))
   {
-    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AHD_genes)
+    print(setdiff(report_writer_config$AHD_genes, sample_coverage_data$Gene))
+    sample_coverage_sub_all <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_writer_config$AHD_genes)
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:27, ], sample_coverage_sub_all[28:54, ], sample_coverage_sub_all[55:81, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_all[1:34, ], sample_coverage_sub_all[35:68, ], sample_coverage_sub_all[69:102, ],
+                               sample_coverage_sub_all[103:136, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3", "Gene4", "Transcript4", "Targeted exons4", "Coverage4")
 
     return (coverage_data_sub)
   }
   else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$AH_genes)
+    sample_coverage_sub_no_ddx41 <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_writer_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
@@ -495,15 +503,16 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 
     #Prepare data for display
     sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:27, ], sample_coverage_sub_no_ddx41[28:54, ], sample_coverage_sub_no_ddx41[55:81, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:34, ], sample_coverage_sub_no_ddx41[35:68, ], sample_coverage_sub_no_ddx41[69:102, ],
+                               sample_coverage_sub_no_ddx41[103:136, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3", "Gene4", "Transcript4", "Targeted exons4", "Coverage4")
 
     return (coverage_data_sub)
   }
   else if (report_type %in% c("MDX", "MDX_MPN"))
   {
-    sample_coverage_sub_mpn_dx <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$MPN_genes)
+    sample_coverage_sub_mpn_dx <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_writer_config$MPN_genes)
     sample_coverage_sub_mpn_dx <- base::merge(sample_coverage_sub_mpn_dx, coverage_data)
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[order(sample_coverage_sub_mpn_dx$Gene), ]
@@ -511,15 +520,16 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
     #Prepare data for display
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA, NA))
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_mpn_dx[1:8, ], sample_coverage_sub_mpn_dx[9:16, ], sample_coverage_sub_mpn_dx[17:24, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_mpn_dx[1:7, ], sample_coverage_sub_mpn_dx[8:14, ], sample_coverage_sub_mpn_dx[15:21, ],
+                               sample_coverage_sub_mpn_dx[22:28, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Coverage1", "Gene2", "Transcript2", "Targeted exons2", "Coverage2",
-                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Coverage3", "Gene4", "Transcript4", "Targeted exons4", "Coverage4")
 
     return (coverage_data_sub)
   }
   else if (report_type == "SG_HAVCR2")
   {
-    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
+    sample_coverage_sub_sg <- subset(sample_coverage_data, sample_coverage_data$Gene %in% report_writer_config$SG_HAVCR2_genes)
     sample_coverage_sub_sg <- base::merge(sample_coverage_sub_sg, coverage_data)
     sample_coverage_sub_sg <- sample_coverage_sub_sg[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
 
@@ -541,53 +551,55 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
 ## returnCoverageTableFail ----
 # Generate panel coverage info for failed reports
 # **********************************************************************************
-returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverage_data)
+returnCoverageTableFail <- function(report_type, vc_gene, report_writer_config, coverage_data)
 {
 
   if (report_type %in% c("AHD", "AHD_DDX41"))
   {
-    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_config$AHD_genes)
+    sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$AHD_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
     sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
-    coverage_data_sub <- cbind(sample_coverage_sub_all[1:27, ], sample_coverage_sub_all[28:54, ], sample_coverage_sub_all[55:81, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_all[1:34, ], sample_coverage_sub_all[35:68, ], sample_coverage_sub_all[69:102, ], sample_coverage_sub_all[103:136, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
-                                     "Gene3", "Transcript3", "Targeted exons3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Gene4", "Transcript4", "Targeted exons4")
 
     return (coverage_data_sub)
   }
   else if (report_type %in% c("AH", "AH_cfDNA"))
   {
-    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_config$AH_genes)
+    sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
     sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
     sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:27, ], sample_coverage_sub_no_ddx41[28:54, ], sample_coverage_sub_no_ddx41[55:81, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_no_ddx41[1:34, ], sample_coverage_sub_no_ddx41[35:68, ], sample_coverage_sub_no_ddx41[69:102, ],
+                               sample_coverage_sub_no_ddx41[103:136, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
-                                     "Gene3", "Transcript3", "Targeted exons3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Gene4", "Transcript4", "Targeted exons4")
 
     return (coverage_data_sub)
   }
   else if (report_type %in% c("MDX", "MDX_MPN"))
   {
-    sample_coverage_sub_mpn_dx <- subset(coverage_data, coverage_data$Gene %in% report_config$MPN_genes)
+    sample_coverage_sub_mpn_dx <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$MPN_genes)
     sample_coverage_sub_mpn_dx <- sample_coverage_sub_mpn_dx[order(sample_coverage_sub_mpn_dx$Gene), ]
 
     #Prepare data for display
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA))
     sample_coverage_sub_mpn_dx <- rbind(sample_coverage_sub_mpn_dx, c(NA, NA, NA))
-    coverage_data_sub <- cbind(sample_coverage_sub_mpn_dx[1:8, ], sample_coverage_sub_mpn_dx[9:16, ], sample_coverage_sub_mpn_dx[17:24, ])
+    coverage_data_sub <- cbind(sample_coverage_sub_mpn_dx[1:7, ], sample_coverage_sub_mpn_dx[8:14, ], sample_coverage_sub_mpn_dx[15:21, ],
+                               sample_coverage_sub_mpn_dx[22:28, ])
     colnames(coverage_data_sub) <- c("Gene", "Transcript", "Targeted exons", "Gene2", "Transcript2", "Targeted exons2",
-                                     "Gene3", "Transcript3", "Targeted exons3")
+                                     "Gene3", "Transcript3", "Targeted exons3", "Gene4", "Transcript4", "Targeted exons4")
 
     return (coverage_data_sub)
   }
   else if (report_type == "SG_HAVCR2")
   {
-    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_config$SG_HAVCR2_genes)
+    sample_coverage_sub_sg <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$SG_HAVCR2_genes)
 
     return (sample_coverage_sub_sg)
   }
@@ -611,8 +623,10 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_config, coverag
 negativeReportResultsSection <- function(report, reportInfo, report_writer_config) {
   if ((reportInfo$report_template != "AH_cfDNA") && (reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
   {
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_sel)
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, reportInfo$clinical_interpretation_txt)
+    clinical_interpretation <- paste0(reportInfo$clinical_interpretation_sel, " ", reportInfo$clinical_interpretation_txt)
+    clinical_interpretation <- trimws(clinical_interpretation, which="both")
+    clinical_interpretation <- gsub("[ ]{2,}", " ", clinical_interpretation)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation, clinical_interpretation)
 
     results_summary <- paste0(reportInfo$results_summary_flt3, " ", reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ",
                               reportInfo$results_summary_desc_other)
@@ -623,9 +637,9 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
   }
   else if (reportInfo$report_template == "AH_cfDNA")
   {
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation, reportInfo$clinical_interpretation_txt)
 
-    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other, " ", report_writer_config$Results_Summary_cfDNA_text)
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, results_summary)
@@ -636,7 +650,7 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
   }
   else if (reportInfo$report_template == "SGVC")
   {
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation, reportInfo$clinical_interpretation_txt)
   }
 
   return (report)
@@ -648,31 +662,23 @@ negativeReportResultsSection <- function(report, reportInfo, report_writer_confi
 # **********************************************************************************
 variantsReportResultsSection <- function(report, reportInfo, report_writer_config) {
   #clinical interpretation
-  if (reportInfo$report_template == "AHD_DDX41")#This report has 4 clinical interpretation lines
+  if (reportInfo$report_template == "AHD_DDX41")
   {
-    if (grepl("\n\n", reportInfo$clinical_interpretation_txt_var)) #multiple lines to break
-    {
-      index <- regexpr("\n\n", reportInfo$clinical_interpretation_txt_var)
-      text1 <- trimws(substring(reportInfo$clinical_interpretation_txt_var, 0, index), which="both")
-      text2 <- trimws(substring(reportInfo$clinical_interpretation_txt_var, index+1, nchar(reportInfo$clinical_interpretation_txt_var)), which="both")
-
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, text1)
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation2, text2)
-
-      report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation3, report_writer_config$Clinical_Interpretation4, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
-    }
-    else
-    {
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
-      report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
-      report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation4, "")
-    }
+    clinical_interpretation <- paste0(reportInfo$clinical_interpretation_txt_var, " ", reportInfo$clinical_interpretation_sel, " ", reportInfo$clinical_interpretation_txt)
+    clinical_interpretation <- trimws(clinical_interpretation, which="both")
+    clinical_interpretation <- gsub("[ ]{2,}", " ", clinical_interpretation)
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation, clinical_interpretation)
   }
   else
   {
-    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation1, reportInfo$clinical_interpretation_txt_var)
+    clinical_interpretation <- reportInfo$clinical_interpretation_txt_var
     if ((reportInfo$report_template != "SG_HAVCR2") && (reportInfo$report_template != "SGVC"))
-      report <- replacepnSelClinicalInterpret(report, report_writer_config$Clinical_Interpretation2, report_writer_config$Clinical_Interpretation3, reportInfo$clinical_interpretation_sel, reportInfo$clinical_interpretation_txt)
+    {
+      clinical_interpretation <- paste0(clinical_interpretation, " ", reportInfo$clinical_interpretation_sel, " ", reportInfo$clinical_interpretation_txt)
+      clinical_interpretation <- trimws(clinical_interpretation, which="both")
+      clinical_interpretation <- gsub("[ ]{2,}", " ", clinical_interpretation)
+    }
+    report <- officer::body_replace_all_text(report, report_writer_config$Clinical_Interpretation, clinical_interpretation)
   }
 
   #results summary
@@ -687,13 +693,16 @@ variantsReportResultsSection <- function(report, reportInfo, report_writer_confi
   {
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_var)
 
-    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other)
+    results_summary <- paste0(reportInfo$results_summary_dna_rna, " ", reportInfo$results_summary_qual, " ", reportInfo$results_summary_desc_other, " ", reportInfo$flt3_itd)
+    if (reportInfo$report_template == "AH_cfDNA")
+      results_summary <- paste0(results_summary, " ", report_writer_config$Results_Summary_cfDNA_text)
+
     results_summary <- trimws(results_summary, which="both")
     results_summary <- gsub("[ ]{2,}", " ", results_summary)
     report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary2, results_summary)
   }
   else
-    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary1, reportInfo$results_summary_desc)
+    report <- officer::body_replace_all_text(report, report_writer_config$Results_Summary, reportInfo$results_summary_desc)
 
   return(report)
 }
