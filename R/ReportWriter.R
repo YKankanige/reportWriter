@@ -1261,8 +1261,7 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
     template_name <- paste0(assay_version, "_", template, "_", reportInfo$report_type, ".docx")
 
   print(paste0("Template name ", template_name))
-  #report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
-  report_template <- officer::read_docx(paste0("E:/Work/Reporting apps/Release 1.5/New/", template_name))
+  report_template <- officer::read_docx(system.file("templates", template_name, package = "reportWriter", mustWork=T))
 
   #replace variable's in the template
   #Patient info header
@@ -1372,6 +1371,8 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   else if (reportInfo$report_template %in% c("AH", "AHD", "AHD_DDX41", "MDX", "MDX_MPN"))
   {
     report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_cfDNA)
+    report_template <- officer::body_remove(report_template)
+    report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_header)
     report_template <- officer::body_remove(report_template)
   }
 

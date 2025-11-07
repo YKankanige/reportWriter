@@ -47,6 +47,7 @@ coverageTableThemed <- function(dataframe, coverage_level) {
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
   table <- flextable::bg(table, bg="#DDD9E8", part="header")
+  table <- flextable::bold(table, part="header")
   table <- flextable::bg(table, bg="#DDD9E8", part="body")
 
   #text alignment
@@ -126,6 +127,7 @@ coverageTableThemedFail <- function(dataframe) {
   table <- flextable::padding(table, padding=0, part="all")
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::padding(table, padding.top=1, padding.bottom=1, part="header")
+  table <- flextable::bold(table, part="header")
   table <- flextable::bg(table, bg="#DDD9E8", part="header")
   table <- flextable::bg(table, bg="#DDD9E8", part="body")
 
@@ -186,17 +188,11 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   index_somatic <- which(grepl("^Somatic", dataframe$AssumedOrigin))
   index_uncertain <- which(grepl("^Uncertain",dataframe$AssumedOrigin))
 
-  for (i in 1:nrow(dataframe))
-  {
-    table_text <- unlist(report_writer_config$assumed_origin_choices)[which(names(report_writer_config$assumed_origin_choice) == dataframe[i, ]$AssumedOrigin)]
-    if (table_text != "ASSUMED SOMATIC")
-      dataframe[i, ]$VariantDetail <- paste0(dataframe[i, ]$VariantDetail, "\norigin: ", table_text)
-  }
 
-  dataframe <- dataframe[, c("VariantInfo", "VariantDetail", "ClinicalSignificance")]
+  dataframe_tb <- dataframe[, c("VariantInfo", "VariantDetail", "ClinicalSignificance")]
   flextable::set_flextable_defaults(font.size=9, font.family="Aptos", na_str=" ", nan_str=" ")
 
-  table <- flextable::flextable(dataframe)
+  table <- flextable::flextable(dataframe_tb)
 
   #Column names
   table <- flextable::set_header_labels(table,
@@ -212,8 +208,33 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::bg(table, bg="#DDD9E8", part="all")
   table <- flextable::color(table, color="black", part="header")
+  table <- flextable::bold(table, part="header")
   table <- flextable::color(table, j=1, color="white", part="body")
   table <- flextable::bold(table,  j=1, part="body")
+
+  #colour text according to origin
+  for (k in 1:nrow(dataframe))
+  {
+    table_text <- unlist(report_writer_config$assumed_origin_choices)[which(names(report_writer_config$assumed_origin_choice) == dataframe[k, ]$AssumedOrigin)]
+    if (table_text != "ASSUMED SOMATIC")
+    {
+      text_color <- "#5A4287"
+      if (grepl("^Germline", dataframe[k, ]$AssumedOrigin))
+        text_color <- "#A153A1"
+      else if (grepl("^Uncertain", dataframe[k, ]$AssumedOrigin)) #different from the first column cell colour (to make it readable when printed in black and white)
+        text_color <- "#78649E"
+
+      variant_details <- dataframe[k, ]$VariantDetail
+      chunk1 <- flextable::as_chunk(variant_details, prop=officer::fp_text(color="black", font.family="Aptos", font.size=9, bold=F))
+      chunk2 <- flextable::as_chunk(paste0("\norigin: ", table_text), prop=officer::fp_text(color=text_color, font.family="Aptos", font.size=9, bold=F))
+      table <- flextable::compose(
+        table,
+        i = k,
+        j = 2,
+        value = flextable::as_paragraph(chunk1, chunk2)
+      )
+    }
+  }
 
   #text alignment
   table <- flextable::valign(table, valign="center", part="all")
@@ -279,8 +300,26 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::bg(table, bg="#DDD9E8", part="all")
   table <- flextable::color(table, color="black", part="header")
+  table <- flextable::bold(table, part="header")
   table <- flextable::color(table, j=1, color="white", part="body")
   table <- flextable::bold(table,  j=1, part="body")
+
+  #HAVCR2 origin text
+  if (report_template == "SG_HAVCR2")
+  {
+    for (k in 1:nrow(dataframe))
+    {
+      variant_details <- dataframe[k, ]$NVariant
+      chunk1 <- flextable::as_chunk(variant_details, prop=officer::fp_text(color="black", font.family="Aptos", font.size=9, bold=F))
+      chunk2 <- flextable::as_chunk(paste0("\norigin: ", report_writer_config$HAVCR2_origin), prop=officer::fp_text(color="#A153A1", font.family="Aptos", font.size=9, bold=F))
+      table <- flextable::compose(
+        table,
+        i = k,
+        j = 2,
+        value = flextable::as_paragraph(chunk1, chunk2)
+      )
+    }
+  }
 
   #text alignment
   table <- flextable::valign(table, valign="center", part="all")
@@ -335,6 +374,7 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
   table <- flextable::padding(table, padding.left=3, part="all")
   table <- flextable::bg(table, bg="#DDD9E8", part="all")
   table <- flextable::color(table, color="black", part="header")
+  table <- flextable::bold(table, part="header")
   table <- flextable::color(table, j=1, color="white", part="body")
   table <- flextable::bold(table,  j=1, part="body")
 
@@ -483,7 +523,6 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
     sample_coverage_sub_all <- base::merge(sample_coverage_sub_all, coverage_data)
     sample_coverage_sub_all <- sample_coverage_sub_all[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
-    sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
     coverage_data_sub <- cbind(sample_coverage_sub_all[1:34, ], sample_coverage_sub_all[35:68, ], sample_coverage_sub_all[69:102, ],
@@ -499,7 +538,6 @@ returnCoverageTable <- function(sample_coverage_data, report_type, vc_gene, repo
     sample_coverage_sub_no_ddx41 <- base::merge(sample_coverage_sub_no_ddx41, coverage_data)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[, c("Gene", "Transcript", "Targeted exons", coverage_level)]
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
-    sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
     sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA, NA))
@@ -558,7 +596,6 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_writer_config, 
   {
     sample_coverage_sub_all <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$AHD_genes)
     sample_coverage_sub_all <- sample_coverage_sub_all[order(sample_coverage_sub_all$Gene), ]
-    sample_coverage_sub_all[which(sample_coverage_sub_all$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
     coverage_data_sub <- cbind(sample_coverage_sub_all[1:34, ], sample_coverage_sub_all[35:68, ], sample_coverage_sub_all[69:102, ], sample_coverage_sub_all[103:136, ])
@@ -571,7 +608,6 @@ returnCoverageTableFail <- function(report_type, vc_gene, report_writer_config, 
   {
     sample_coverage_sub_no_ddx41 <- subset(coverage_data, coverage_data$Gene %in% report_writer_config$AH_genes)
     sample_coverage_sub_no_ddx41 <- sample_coverage_sub_no_ddx41[order(sample_coverage_sub_no_ddx41$Gene), ]
-    sample_coverage_sub_no_ddx41[which(sample_coverage_sub_no_ddx41$Gene == "FLT3"), "Gene"] <- "FLT3\u002A"
 
     #Prepare data for display
     sample_coverage_sub_no_ddx41 <- rbind(sample_coverage_sub_no_ddx41, c(NA, NA, NA))
