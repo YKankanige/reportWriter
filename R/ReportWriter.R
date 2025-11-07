@@ -1372,8 +1372,11 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   {
     report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_cfDNA)
     report_template <- officer::body_remove(report_template)
-    report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_header)
-    report_template <- officer::body_remove(report_template)
+    if (reportInfo$report_type == "FAIL")
+    {
+      report_template <- officer::cursor_reach(report_template, report_config$Test_Limitations_header)
+      report_template <- officer::body_remove(report_template)
+    }
   }
 
   #Add coverage table

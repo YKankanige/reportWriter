@@ -70,6 +70,7 @@ coverageTableThemed <- function(dataframe, coverage_level) {
     table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
 
     table <- flextable::bold(table, part="body", j=1)
+    table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
   }
   else
   {
@@ -80,8 +81,12 @@ coverageTableThemed <- function(dataframe, coverage_level) {
                               width=c(1.06, 1.4, 1.21, 0.57, 1, 1.74, 1.19, 0.57, 1.24, 1.74, 1.2, 0.57,
                                       1.15, 1.74, 1.19, 0.53), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
+
+    if (nrow(dataframe) > 7) #AH, AHD
+      table <- flextable::set_table_properties(table, opts_word=list(split=T, keep_with_next=F))
+    else #MDX
+      table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
   }
-  table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
 
   return (table)
 }
@@ -151,6 +156,7 @@ coverageTableThemedFail <- function(dataframe) {
     table <- flextable::set_table_properties(table, layout="fixed", width=0.34)
 
     table <- flextable::bold(table, part="body", j=1)
+    table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
   }
   else
   {
@@ -161,8 +167,12 @@ coverageTableThemedFail <- function(dataframe) {
                               width=c(1.06, 1.4, 1.21, 1, 1.74, 1.19, 1.24, 1.74, 1.2,
                                       1.15, 1.74, 1.19), unit="cm")
     table <- flextable::set_table_properties(table, layout="fixed", width=1)
+
+    if (nrow(dataframe) > 7) #AH, AHD
+      table <- flextable::set_table_properties(table, opts_word=list(split=T, keep_with_next=F))
+    else #MDX
+      table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
   }
-  table <- flextable::set_table_properties(table, opts_word=list(split=F, keep_with_next=T))
 
   return (table)
 }
