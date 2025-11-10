@@ -1281,8 +1281,6 @@ generateReportTemplate <- function(reportInfo, report_config, coverage_data)
   if (identical(reportInfo$comment, report_config$section_Delete))
   {
     report_template <- officer::cursor_reach(report_template, report_config$Report_Comment)
-    report_template <- officer::body_add_par(report_template, "", pos="before")
-    report_template <- officer::cursor_reach(report_template, report_config$Report_Comment)
     report_template <- officer::body_remove(report_template)
   }
   else

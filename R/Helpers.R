@@ -267,9 +267,15 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
 
   #Colour rows based on Assumed origin (if gemline different color)
   if (length(index_germline) != 0)
+  {
     table <- flextable::bg(table, bg="#A153A1", part="body", i=index_germline, j=1)
+    table <- flextable::bg(table, bg="#E0CCE4", part="body", i=index_germline, j=c(2,3))
+  }
   if (length(index_somatic) != 0)
+  {
     table <- flextable::bg(table, bg="#5A4287", part="body", i=index_somatic, j=1)
+    table <- flextable::bg(table, bg="#C3BDD7", part="body", i=index_somatic, j=c(2,3))
+  }
   if (length(index_uncertain) != 0)
     table <- flextable::bg(table, bg="#8777AB", part="body", i=index_uncertain, j=1)
 
@@ -350,6 +356,7 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
   table <- flextable::border_inner_h(table, part="all", border=big_border)
   table <- flextable::border_inner_v(table, part="all", border=big_border)
   table <- flextable::bg(table, bg="#A153A1", part="body", j=1)
+  table <- flextable::bg(table, bg="#E0CCE4", part="body", j=c(2,3, 4))
 
   return (table)
 }
@@ -359,6 +366,7 @@ variantsTableThemedSG <- function(dataframe, clinical_significance_header, repor
 # Reported fusions table style for RNA report templates
 # **********************************************************************************
 variantsTableThemedRNA<- function(dataframe, clinical_significance_header, report_writer_config, report_template) {
+
 
   #Allow creation of the table without entries
   if (is.null(dataframe))
@@ -407,6 +415,7 @@ variantsTableThemedRNA<- function(dataframe, clinical_significance_header, repor
   table <- flextable::border_inner_h(table, part="all", border=big_border)
   table <- flextable::border_inner_v(table, part="all", border=big_border)
   table <- flextable::bg(table, bg="#5A4287", part="body", j=1)
+  table <- flextable::bg(table, bg="#C3BDD7", part="body", j=c(2,3))
 
   return (table)
 }
