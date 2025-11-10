@@ -191,7 +191,7 @@ variantsTableThemed <- function(dataframe, clinical_significance_header, report_
   dataframe$VRF[is.na(dataframe$VRF)] <- report_writer_config$vrf_na
   hgvsp <- str_extract(dataframe$Variant, "p[.].*$")
   dataframe["VariantInfo"] <- paste0(dataframe$Gene, "\n", ifelse(is.na(hgvsp), "", hgvsp))
-  dataframe["VariantDetail"] <- paste0(dataframe$Variant, "\nvariant read frequency: ", dataframe$VRF, "%")
+  dataframe["VariantDetail"] <- paste0(dataframe$Variant, "\nvariant read frequency: ", dataframe$VRF, ifelse(dataframe$VRF == report_writer_config$vrf_na, "", "%"))
 
   #origin indexes for bg color
   index_germline <- which(grepl("^Germline", dataframe$AssumedOrigin))
