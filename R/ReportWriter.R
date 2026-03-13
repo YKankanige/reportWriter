@@ -188,6 +188,12 @@ loadSampleInfo <- function(con_pathOS, seqrun, sample_accession, reportInfo, pat
 {
   data <-  getSampleInfo(con_pathOS, seqrun, sample_accession)
 
+  #Check whether supported panel
+  if(!(data$panel %in% names(report_config$coverage_level)))
+  {
+    stop("Panel not supported")
+  }
+
   #coverage level
   index <- which(names(report_config$coverage_level) == data$panel)
   coverage_level <- unlist(report_config$coverage_level[index])
